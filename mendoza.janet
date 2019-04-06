@@ -1,0 +1,461 @@
+###
+### mendoza.janet
+### Copyright © 2019 Calvin Rose
+###
+
+#
+# Environment
+#
+
+(def- version "0.0.0")
+
+(def- _env *env*)
+(defn- make-template-env
+  "Creates an environment that has access to both
+  symbols in the current environment and mendoza's
+  symbols."
+  []
+  (let [e (make-env *env*)]
+    (loop [[sym entry] :pairs _env
+           :when (not (entry :private))]
+      (put e sym entry))
+    e))
+
+#
+# Markdown Sub-Languages
+#
+
+(def- sublangs
+  "Cached sublanguage pipes."
+  @{})
+
+(defn- get-sublang
+  "Get a sublanguage pipe from the language name."
+  [name]
+  (if-let [pipe (sublangs name)]
+    pipe
+    (let [env (require (string "sublangs/" name))
+          pipe ((env 'main) :value)]
+      (put sublangs name pipe)
+      pipe)))
+
+#
+# Markdown -> DOM parser
+#
+
+(defn- combine-strings
+  "Flatten consecutive strings in an indexed structure by concatenating them.
+  The resulting document graph should be much cleaner. Also, empty strings will
+  be removed entirely."
+  [els]
+  (let [buf @""
+        accum @[]
+        flush (fn []
+                (unless (empty? buf)
+                  (array/push accum (string buf))
+                  (buffer/clear buf)))]
+    (loop [x :in els]
+      (if (bytes? x)
+        (buffer/push-string buf x)
+        (do (flush) (array/push accum x))))
+    (flush)
+    (tuple/slice accum)))
+
+(defn- capture-tokens
+  "Wrapper to make combine-strings variadic and useful as a subtitution function
+  in the peg grammar."
+  [& args]
+  (combine-strings args))
+
+(defn- capture-header
+  "Peg capture function for parsing markdown headers."
+  [prefix & content]
+  (def n (length prefix))
+  {:tag (string "h" n)
+   :content (combine-strings content)})
+
+(defn- capture-anchor
+  "Peg capture function for parsing markdown links."
+  [& args]
+  {:tag "a"
+   :content (combine-strings (tuple/slice args 0 -2))
+   "href" (last args)})
+
+(defn- capture-image
+  "Peg capture function for parsing markdown images."
+  [& args]
+  {:tag "img"
+   :content (combine-strings (tuple/slice args 0 -2))
+   :no-close true
+   "src" (last args)})
+
+(defn- line-el
+  "Create a peg pattern for parsing some markup
+  on a line. Captures the HTML text to output."
+  [delim tag]
+  (defn replace
+    [& args]
+    {:tag tag
+     :content (combine-strings args)})
+  ~(* ,delim
+      (/ (any (if-not ,delim :token)) ,replace)
+      ,delim))
+
+(defn- capture-table
+  "Peg capture function for a table"
+  [& contents]
+  {:tag "table"
+   :content (combine-strings contents)})
+
+(defn- capture-code
+  "Peg capture function for single line of code"
+  [code]
+  {:tag "code" :content [code]})
+
+(defn- capture-codeblock
+  "Peg capture function for multiline codeblock"
+  [language code]
+  (if (= "" language)
+    {:tag "pre" :content code}
+    ((get-sublang language) code)))
+
+(defn- capture-li
+  "Capture a list inside the peg and create a Document Node."
+  [& contents]
+  {:tag "li"
+   :content (combine-strings contents)})
+
+(defn- capture-ol
+  "Capture a list inside the peg and create a Document Node."
+  [& contents]
+  {:tag "ol"
+   :content (combine-strings contents)})
+
+(defn- capture-ul
+  "Capture a list inside the peg and create a Document Node."
+  [& contents]
+  {:tag "ul"
+   :content (combine-strings contents)})
+
+(defn- capture-paragraph
+  "Capture a paragraph node in the peg."
+  [& contents]
+  {:tag "p"
+   :content (combine-strings contents)})
+
+(def- md-grammar
+  "Grammar for markdown -> document AST parser."
+  ~{:next (any (+ (set "\t \n\r") -1))
+    :ws (some (set "\t "))
+    :opt-ws (any (set "\t "))
+    :nl-char (+ (* (? "\r") "\n") -1)
+    :nl ':nl-char
+    :opt-nl (? :nl-char)
+    :escape (* "\\" '1)
+    :anchor-text (* "[" (any (if-not "]" :token)) "]")
+    :img-text    (* "![" (any (if-not "]" :token)) "]")
+    :anchor-ref  (* "(" '(some (if-not ")" 1)) ")")
+    :anchor (/ (* :anchor-text :anchor-ref) ,capture-anchor)
+    :img (/ (* :img-text :anchor-ref) ,capture-image)
+    :strong ,(line-el "**" "strong")
+    :em     ,(line-el "*" "em")
+    :trow (* "|"
+             (/ (some (* (/ (any :table-token) ,capture-tokens)
+                         "|"
+                         :opt-ws)) ,tuple)
+             :nl)
+    :table (/ (* :trow
+                 (* (any (if-not :nl-char 1)) :nl-char)
+                 (any :trow))
+              ,capture-table)
+    :code    (* "`" (/ '(any (if-not "`" 1)) ,capture-code) "`")
+    :codeblock-inner '(any (if-not "```" 1))
+    :codeblock (/ (* "```"
+                     '(any (range "AZ" "--" "__" "az")) # capture language
+                     :opt-ws :opt-nl
+                     :codeblock-inner
+                     "```") ,capture-codeblock)
+    :table-token (+ :img :anchor :strong
+                    :em :code :escape '(if-not (set "\n|") 1))
+    :token (* ':opt-ws (+ :img :anchor :strong
+                          :em :code :escape '(if-not :nl-char 1)))
+    :lines (some (* (some :token) :nl))
+    :li (* (/ (some :token) ,capture-li) :nl)
+    :ulli (* :opt-ws (set "-*") :li)
+    :olli (* :opt-ws (some (range "09")) "." :li)
+    :ul (* (/ (some :ulli) ,capture-ul) :nl)
+    :ol (* (/ (some :olli) ,capture-ol) :nl)
+    :paragraph (/ (* :lines :nl-char) ,capture-paragraph)
+    :header (/ (* '(between 1 6 "#") (some :token) :nl) ,capture-header)
+    :front (* '(any (if-not "---" 1)) "---" :opt-nl)
+    :main (* (+ :front (error "expected front matter"))
+             (any (* :next
+                     (+ :header :ul :ol
+                        :codeblock :table :paragraph -1 (error "")))))})
+
+(def- md-peg
+  "A peg that converts markdown to html."
+  (peg/compile md-grammar))
+
+(defn md-parse
+  "Parse markdown and return a dom."
+  [source]
+  (def matches (peg/match md-peg source))
+  (unless matches (error "bad markdown"))
+  (def front (eval-string (matches 0) _env))
+  (def ret @{:tag "div"
+             :content (tuple/slice matches 1)})
+  (when (dictionary? front)
+    (loop [[k v] :pairs front]
+      (put ret k v)))
+  (table/to-struct ret))
+
+#
+# DOM -> HTML rendering
+#
+
+(def- html-escape-chars
+  "Characters to escape for HTML"
+  {("&" 0) "&amp;"
+   ("<" 0) "&lt;"
+   (">" 0) "&gt;"})
+
+(def- attribute-escape-chars
+  "Characters to escape for HTML"
+  {("\"" 0) "&quot;"
+   ("'" 0) "&#39;"})
+
+(defn- escape
+  "Escape a string into buf."
+  [str buf escapes]
+  (each byte str
+    (if-let [e (escapes byte)]
+      (buffer/push-string buf e)
+      (buffer/push-byte buf byte))))
+
+(defn render
+  "Render a document node into HTML. Returns a buffer."
+  [root &opt buf]
+  (default buf @"")
+  (defn render1
+    "Render a node"
+    [node]
+    (cond
+      (buffer? node) (buffer/push-string buf node)
+      (bytes? node) (escape node buf html-escape-chars)
+      (indexed? node) (each c node (render1 c))
+      (let [tag (node :tag)
+            content (node :content)
+            no-close (node :no-close)]
+        (buffer/push-string buf "<" tag)
+        (loop [k :keys node :when (string? k)]
+          (buffer/push-string buf " " k "=\"")
+          (escape (node k) buf attribute-escape-chars)
+          (buffer/push-string buf "\""))
+        (buffer/push-string buf ">")
+        (render1 content)
+        (unless no-close (buffer/push-string buf "</" tag ">")))))
+  (render1 root)
+  buf)
+
+#
+# Template Syntax and Compiler
+#
+
+(defn template
+  "Compile a template string into a function"
+  [source &opt where]
+
+  (default where (string source))
+
+  # State for compilation machine
+  (def p (parser/new))
+  (def forms @[])
+
+  (defn parse-chunk
+    "Parse a string and push produced values to forms."
+    [chunk]
+    (parser/consume p chunk)
+    (while (parser/has-more p)
+      (array/push forms (parser/produce p))))
+
+  (defn code-chunk
+    "Parse all the forms in str and return them
+    in a tuple prefixed with 'do."
+    [str]
+    (parse-chunk str)
+    (if (= :error (parser/status p))
+      (error (parser/error p)))
+    true)
+
+  (defn string-chunk
+    "Insert string chunk into parser"
+    [str]
+    (parser/insert p str)
+    (parse-chunk "")
+    true)
+
+  # Run peg
+  (def grammar
+    ~{:code-chunk (* "{{" (drop (cmt '(any (if-not "}}" 1)) ,code-chunk)) "}}")
+      :main-chunk (drop (cmt '(any (if-not "{{" 1)) ,string-chunk))
+      :main (any (+ :code-chunk :main-chunk (error "")))})
+  (def parts (peg/match grammar source))
+
+  # Check errors in template and parser
+  (unless parts (error "invalid template syntax"))
+  (parse-chunk "\n")
+  (case (parser/status p)
+    :pending (error (string "unfinished parser state " (parser/state p)))
+    :error (error (parser/error p)))
+
+  # Make ast from forms
+  (def ast ~(fn [&opt content] (default content {}) (buffer ,;forms)))
+
+  (def ctor (compile ast (make-template-env) where))
+  (if-not (function? ctor)
+    (error (string "could not compile template: " (string/format "%p" ctor))))
+  (ctor))
+
+#
+# Content Functions -> traverse the DOM
+#
+
+(defn content-search-tag
+  "Search the dom for the first occurence of a tag. Return the
+   content of that dom element. Returns nil if no tag found."
+  [tag dom]
+  (when (and tag (not (bytes? tag)))
+    (if (indexed? dom)
+      (some (partial content-search-tag tag) dom)
+      (or (and (= (dom :tag) tag) (dom :content))
+          (content-search-tag tag (dom :content))))))
+
+#
+# Building
+#
+
+(defn- cp-rf
+  "Copy files recursively. Does not copy file permissions, but that's ok for
+  a static site."
+  [src dest]
+  (os/mkdir dest)
+  (each f (os/dir src)
+    (let [subsrc (string src "/" f)
+          subdest (string dest "/" f)]
+      (if (= (os/stat subsrc :mode) :directory)
+        (cp-rf subsrc subdest)
+        (spit subdest (slurp subsrc))))))
+
+(def- build-default-template
+  "Default template for documents if no template is specified."
+  (template
+`````<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <title>{{(content :title)}}</title>
+  <style type="text/css">
+.mendoza-main { color: white; background: #111; }
+.mendoza-number { color: #89dc76; }
+.mendoza-keyword { color: #ffd866; }
+.mendoza-string { color: #ab90f2; }
+.mendoza-coresym { color: #ff6188; }
+.mendoza-constant { color: #fc9867; }
+.mendoza-comment { color: darkgray; }
+.mendoza-line { color: gray; }
+  </style>
+</head>
+<html>
+<body>
+{{(render content)}}
+</body>
+</html>
+`````))
+
+(defn- dom-get-template
+  "Get the template for a dom"
+  [templates dom]
+  (def t (dom :template))
+  (or (and t (templates t)) build-default-template))
+
+(defn- dom-get-output
+  "Get the output path for a dom"
+  [input-path dom]
+  (def o (dom :output))
+  # Cut off leading "content/" if no output found
+  (or o (string "site/" (string/slice input-path 8 -4) ".html")))
+
+(defn- rimraf
+  "Remove a directory and all sub directories."
+  [path]
+  (if-let [m (os/stat path :mode)]
+    (if (= m :directory)
+      (do
+        (each subpath (os/dir path) (rimraf (string path "/" subpath)))
+        (os/rmdir path))
+      (os/rm path))))
+
+#
+# Main Entry Point
+#
+
+(def usage
+  "Script usage."
+``` [action]
+
+  Actions:
+    help    - Print this usage information
+    build   - Create the static site in the 'site' directory
+    clean   - Destory the static site directory
+    serve   - Serves current site. Uses python3 to serve.
+    version - Print the mendoza version
+```)
+
+(defn cli
+  "Build the static site and put it in the output folder."
+  [args]
+
+  (var action "build")
+  (if (>= (length args) 3)
+    (set action (args 2)))
+
+  # Do actions
+  (case action
+    "help" (do (print (args 1) usage) (os/exit))
+    "version" (do (print version) (os/exit))
+    "clean" (do (rimraf "site") (os/exit))
+    "serve" (do (os/shell "cd site; python3 -m http.server 8000")
+              (os/exit))
+    "build" nil)
+
+  # Clean up old artifacts
+  (rimraf "site")
+  (os/mkdir "site")
+
+  # Copy static stuff
+  (when (os/stat "static" :mode)
+    (cp-rf "static" "site"))
+
+  # Read in inputs
+  (def inputs @{})
+  (when (os/stat "content" :mode)
+    (each f (os/dir "content")
+      (def in (string "content/" f))
+      (print "Parsing content " in " as markdown...")
+      (def input (md-parse (slurp in)))
+      (put inputs in input)))
+
+  # Read in templates
+  (def templates @{})
+  (when (os/stat "templates" :mode)
+    (each f (os/dir "templates")
+      (def tpath (string "templates/" f))
+      (print "Parsing template " tpath " as bar template...")
+      (put templates f (template (slurp tpath) tpath))))
+
+  # Run Templates
+  (loop [[path dom] :pairs inputs]
+    (def out ((dom-get-template templates dom) dom))
+    (def outpath (dom-get-output path dom))
+    (print "Writing HTML to " outpath "...")
+    (spit outpath out)))

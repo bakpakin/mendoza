@@ -1,0 +1,5 @@
+#!/usr/bin/env janet
+
+(import mendoza :as mdz)
+
+(mdz/cli process/args)
