@@ -3,23 +3,7 @@
 ### Copyright © 2019 Calvin Rose
 ###
 
-#
-# Environment
-#
-
 (def version "0.0.0")
-
-(def- _env *env*)
-(defn- make-template-env
-  "Creates an environment that has access to both
-  symbols in the current environment and mendoza's
-  symbols."
-  []
-  (let [e (make-env *env*)]
-    (loop [[sym entry] :pairs _env
-           :when (not (entry :private))]
-      (put e sym entry))
-    e))
 
 #
 # Markdown Sub-Languages
@@ -202,7 +186,7 @@
   [source]
   (def matches (peg/match md-peg source))
   (unless matches (error "bad markdown"))
-  (def front (eval-string (matches 0) _env))
+  (def front (eval-string (matches 0)))
   (def ret @{:tag "div"
              :content (tuple/slice matches 1)})
   (when (dictionary? front)
@@ -244,17 +228,18 @@
       (buffer? node) (buffer/push-string buf node)
       (bytes? node) (escape node buf html-escape-chars)
       (indexed? node) (each c node (render1 c))
-      (let [tag (node :tag)
-            content (node :content)
-            no-close (node :no-close)]
-        (buffer/push-string buf "<" tag)
-        (loop [k :keys node :when (string? k)]
-          (buffer/push-string buf " " k "=\"")
-          (escape (node k) buf attribute-escape-chars)
-          (buffer/push-string buf "\""))
-        (buffer/push-string buf ">")
-        (render1 content)
-        (unless no-close (buffer/push-string buf "</" tag ">")))))
+      (dictionary? node) (let [tag (node :tag)
+                               content (node :content)
+                               no-close (node :no-close)]
+                           (buffer/push-string buf "<" tag)
+                           (loop [k :keys node :when (string? k)]
+                             (buffer/push-string buf " " k "=\"")
+                             (escape (node k) buf attribute-escape-chars)
+                             (buffer/push-string buf "\""))
+                           (buffer/push-string buf ">")
+                           (render1 content)
+                           (unless no-close (buffer/push-string buf "</" tag ">")))
+      (escape (string node) buf html-escape-chars)))
   (render1 root)
   buf)
 
@@ -262,17 +247,36 @@
 # Template Syntax and Compiler
 #
 
+(def- _env *env*)
+(defn- make-template-env
+  "Creates an environment that has access to both
+  symbols in the current environment and mendoza's
+  symbols."
+  []
+  (let [e (make-env *env*)]
+    (loop [[sym entry] :pairs _env
+           :when (not (entry :private))]
+      (put e sym entry))
+    e))
+
 (defn template
   "Compile a template string into a function"
   [source &opt where]
 
   (default where (string source))
+  (def env (make-template-env))
 
   (def bufsym (gensym))
 
   # State for compilation machine
   (def p (parser/new))
   (def forms @[])
+
+  (defn compile-time-chunk
+    "Eval the capture straight away during compilation. Use for imports, etc."
+    [chunk]
+    (eval-string chunk env)
+    true)
 
   (defn parse-chunk
     "Parse a string and push produced values to forms."
@@ -293,7 +297,7 @@
     "Same as code-chunk, but results in sending code to the buffer."
     [str]
     (code-chunk 
-      (string " (buffer/push-string " bufsym " " str ") ")))
+      (string " (render " str " " bufsym ") ")))
 
   (defn string-chunk
     "Insert string chunk into parser"
@@ -305,9 +309,10 @@
   # Run peg
   (def grammar
     ~{:code-chunk (* "{%" (drop (cmt '(any (if-not "%}" 1)) ,code-chunk)) "%}")
+      :compile-time-chunk (* "{$" (drop (cmt '(any (if-not "$}" 1)) ,compile-time-chunk)) "$}")
       :sub-chunk (* "{{" (drop (cmt '(any (if-not "}}" 1)) ,sub-chunk)) "}}")
-      :main-chunk (drop (cmt '(any (if-not (+ "{{" "{%") 1)) ,string-chunk))
-      :main (any (+ :code-chunk :sub-chunk :main-chunk (error "")))})
+      :main-chunk (drop (cmt '(any (if-not (+ "{$" "{{" "{%") 1)) ,string-chunk))
+      :main (any (+ :compile-time-chunk :code-chunk :sub-chunk :main-chunk (error "")))})
   (def did-match (peg/match grammar source))
 
   # Check errors in template and parser
@@ -323,7 +328,7 @@
               ,;forms
               ,bufsym))
 
-  (def ctor (compile ast (make-template-env) where))
+  (def ctor (compile ast env where))
   (if-not (function? ctor)
     (error (string "could not compile template: " (string/format "%p" ctor))))
   (ctor))

@@ -10,13 +10,15 @@
     <div>
       <ol>
       {% (each page pages %}
-      <li> <a href="{{ (page :url) }}">{{ (page :title) }}</a> </li>
+      <li>
+        <a href="{{ (page :url) }}">{{ (page :title) }}</a>
+      </li>
       {% ) %}
       </ol>
     </div>
-    {{ (render content) }}
+    {{ content }}
     <footer>
-      {{ (string "Copyright " ((os/date) :year) " by Calvin Rose") }}
+      Copyright &copy; Calvin Rose {{ ((os/date) :year) }}
     </footer>
   </body>
 </html>
