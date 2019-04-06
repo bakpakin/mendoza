@@ -422,8 +422,9 @@
 
 (defn serve
   "Serve the site locally."
-  []
-  (os/shell "cd site; python3 -m http.server 8000"))
+  [&opt port]
+  (default port "8000")
+  (os/shell (string "cd site; python3 -m http.server " port)))
 
 (defn build
   "Build the static site and put it in the output folder."

@@ -7,11 +7,11 @@
 ``` [action]
 
   Actions:
-    help    - Print this usage information
-    build   - Create the static site in the 'site' directory
-    clean   - Destory the static site directory
-    serve   - Serves current site. Uses python3 to serve.
-    version - Print the mendoza version
+    help               - Print this usage information
+    build              - Create the static site in the 'site' directory
+    clean              - Destory the static site directory
+    serve [port=8000]  - Serves current site. Uses python3 to serve.
+    version            - Print the mendoza version
 ```)
 
 (var action "build")
@@ -23,5 +23,5 @@
   "help" (print (process/args 1) usage)
   "version" (print mdz/version)
   "clean" (mdz/clean)
-  "serve" (mdz/serve)
+  "serve" (mdz/serve (if (> (length process/args) 3) (process/args 3)))
   "build" (mdz/build))
