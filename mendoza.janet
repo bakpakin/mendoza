@@ -7,7 +7,7 @@
 # Environment
 #
 
-(def- version "0.0.0")
+(def version "0.0.0")
 
 (def- _env *env*)
 (defn- make-template-env
@@ -208,7 +208,7 @@
   (when (dictionary? front)
     (loop [[k v] :pairs front]
       (put ret k v)))
-  (table/to-struct ret))
+  ret)
 
 #
 # DOM -> HTML rendering
@@ -268,6 +268,8 @@
 
   (default where (string source))
 
+  (def bufsym (gensym))
+
   # State for compilation machine
   (def p (parser/new))
   (def forms @[])
@@ -280,37 +282,46 @@
       (array/push forms (parser/produce p))))
 
   (defn code-chunk
-    "Parse all the forms in str and return them
-    in a tuple prefixed with 'do."
+    "Parse all the forms in str and insert them into the template."
     [str]
     (parse-chunk str)
     (if (= :error (parser/status p))
       (error (parser/error p)))
     true)
 
+  (defn sub-chunk
+    "Same as code-chunk, but results in sending code to the buffer."
+    [str]
+    (code-chunk 
+      (string " (buffer/push-string " bufsym " " str ") ")))
+
   (defn string-chunk
     "Insert string chunk into parser"
     [str]
-    (parser/insert p str)
+    (parser/insert p ~(,buffer/push-string ,bufsym ,str))
     (parse-chunk "")
     true)
 
   # Run peg
   (def grammar
-    ~{:code-chunk (* "{{" (drop (cmt '(any (if-not "}}" 1)) ,code-chunk)) "}}")
-      :main-chunk (drop (cmt '(any (if-not "{{" 1)) ,string-chunk))
-      :main (any (+ :code-chunk :main-chunk (error "")))})
-  (def parts (peg/match grammar source))
+    ~{:code-chunk (* "{%" (drop (cmt '(any (if-not "%}" 1)) ,code-chunk)) "%}")
+      :sub-chunk (* "{{" (drop (cmt '(any (if-not "}}" 1)) ,sub-chunk)) "}}")
+      :main-chunk (drop (cmt '(any (if-not (+ "{{" "{%") 1)) ,string-chunk))
+      :main (any (+ :code-chunk :sub-chunk :main-chunk (error "")))})
+  (def did-match (peg/match grammar source))
 
   # Check errors in template and parser
-  (unless parts (error "invalid template syntax"))
+  (unless did-match (error "invalid template syntax"))
   (parse-chunk "\n")
+  (parser/eof p)
   (case (parser/status p)
-    :pending (error (string "unfinished parser state " (parser/state p)))
     :error (error (parser/error p)))
 
   # Make ast from forms
-  (def ast ~(fn [&opt content] (default content {}) (buffer ,;forms)))
+  (def ast ~(fn [content pages]
+              (def ,bufsym @"")
+              ,;forms
+              ,bufsym))
 
   (def ctor (compile ast (make-template-env) where))
   (if-not (function? ctor)
@@ -332,7 +343,7 @@
           (content-search-tag tag (dom :content))))))
 
 #
-# Building
+# File System Helpers
 #
 
 (defn- cp-rf
@@ -347,13 +358,14 @@
         (cp-rf subsrc subdest)
         (spit subdest (slurp subsrc))))))
 
-(def- build-default-template
+(def- default-template
   "Default template for documents if no template is specified."
   (template
 `````<!doctype html>
+<html>
 <head>
   <meta charset="utf-8">
-  <title>{{(content :title)}}</title>
+  <title>{{ (content :title) }}</title>
   <style type="text/css">
 .mendoza-main { color: white; background: #111; }
 .mendoza-number { color: #89dc76; }
@@ -365,25 +377,23 @@
 .mendoza-line { color: gray; }
   </style>
 </head>
-<html>
 <body>
-{{(render content)}}
+{{ (render content) }}
 </body>
 </html>
 `````))
 
-(defn- dom-get-template
+(defn- page-get-template
   "Get the template for a dom"
-  [templates dom]
-  (def t (dom :template))
-  (or (and t (templates t)) build-default-template))
+  [templates page]
+  (def t (page :template))
+  (or (and t (templates t)) default-template))
 
-(defn- dom-get-output
-  "Get the output path for a dom"
-  [input-path dom]
-  (def o (dom :output))
-  # Cut off leading "content/" if no output found
-  (or o (string "site/" (string/slice input-path 8 -4) ".html")))
+(defn- page-get-url
+  "Get the output url for a dom"
+  [page]
+  (def o (page :url))
+  (or o (string (string/slice (page :input) 0 -4) ".html")))
 
 (defn- rimraf
   "Remove a directory and all sub directories."
@@ -396,54 +406,42 @@
       (os/rm path))))
 
 #
-# Main Entry Point
+# Main API
 #
 
-(def usage
-  "Script usage."
-``` [action]
+(defn clean
+  "Clean up the old site."
+  []
+  (print "Removing directory site...")
+  (rimraf "site"))
 
-  Actions:
-    help    - Print this usage information
-    build   - Create the static site in the 'site' directory
-    clean   - Destory the static site directory
-    serve   - Serves current site. Uses python3 to serve.
-    version - Print the mendoza version
-```)
+(defn serve
+  "Serve the site locally."
+  []
+  (os/shell "cd site; python3 -m http.server 8000"))
 
-(defn cli
+(defn build
   "Build the static site and put it in the output folder."
-  [args]
-
-  (var action "build")
-  (if (>= (length args) 3)
-    (set action (args 2)))
-
-  # Do actions
-  (case action
-    "help" (do (print (args 1) usage) (os/exit))
-    "version" (do (print version) (os/exit))
-    "clean" (do (rimraf "site") (os/exit))
-    "serve" (do (os/shell "cd site; python3 -m http.server 8000")
-              (os/exit))
-    "build" nil)
+  []
 
   # Clean up old artifacts
-  (rimraf "site")
+  (clean)
   (os/mkdir "site")
 
   # Copy static stuff
   (when (os/stat "static" :mode)
     (cp-rf "static" "site"))
 
-  # Read in inputs
-  (def inputs @{})
+  # Read in pages
+  (def pages @[])
   (when (os/stat "content" :mode)
-    (each f (os/dir "content")
+    (each f (sort (os/dir "content"))
       (def in (string "content/" f))
       (print "Parsing content " in " as markdown...")
-      (def input (md-parse (slurp in)))
-      (put inputs in input)))
+      (def page (md-parse (slurp in)))
+      (put page :input f)
+      (put page :url (page-get-url page))
+      (array/push pages page)))
 
   # Read in templates
   (def templates @{})
@@ -454,8 +452,10 @@
       (put templates f (template (slurp tpath) tpath))))
 
   # Run Templates
-  (loop [[path dom] :pairs inputs]
-    (def out ((dom-get-template templates dom) dom))
-    (def outpath (dom-get-output path dom))
+  (loop [page :in pages]
+    (def out ((page-get-template templates page)
+              page
+              pages))
+    (def outpath (string "site/" (page :url)))
     (print "Writing HTML to " outpath "...")
     (spit outpath out)))
