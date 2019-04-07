@@ -296,7 +296,7 @@
   (defn sub-chunk
     "Same as code-chunk, but results in sending code to the buffer."
     [str]
-    (code-chunk 
+    (code-chunk
       (string " (render " str " " bufsym ") ")))
 
   (defn string-chunk
@@ -323,7 +323,7 @@
     :error (error (parser/error p)))
 
   # Make ast from forms
-  (def ast ~(fn [content pages]
+  (def ast ~(fn _template [content pages url]
               (def ,bufsym @"")
               ,;forms
               ,bufsym))
@@ -363,6 +363,18 @@
         (cp-rf subsrc subdest)
         (spit subdest (slurp subsrc))))))
 
+(defn- create-dirs
+  "Recursively create directories for a path if they don't exist"
+  [url]
+  (def parts (tuple/slice (string/split "/" url) 0 -2))
+  (def buf @"")
+  (each part parts
+    (buffer/push-string buf part)
+    (def path (string buf))
+    (unless (= (os/stat path :mode) :directory)
+      (os/mkdir path))
+    (buffer/push-string buf "/")))
+
 (def- default-template
   "Default template for documents if no template is specified."
   (template
@@ -383,7 +395,7 @@
   </style>
 </head>
 <body>
-{{ (render content) }}
+{{ content }}
 </body>
 </html>
 `````))
@@ -398,7 +410,7 @@
   "Get the output url for a dom"
   [page]
   (def o (page :url))
-  (or o (string (string/slice (page :input) 0 -4) ".html")))
+  (or o (string (string/slice (page :input) 8 -4) ".html")))
 
 (defn- rimraf
   "Remove a directory and all sub directories."
@@ -440,14 +452,17 @@
 
   # Read in pages
   (def pages @[])
-  (when (os/stat "content" :mode)
-    (each f (sort (os/dir "content"))
-      (def in (string "content/" f))
-      (print "Parsing content " in " as markdown...")
-      (def page (md-parse (slurp in)))
-      (put page :input f)
-      (put page :url (page-get-url page))
-      (array/push pages page)))
+  (defn read-pages [path]
+    (case (os/stat path :mode)
+      :directory (each f (sort (os/dir path))
+                   (read-pages (string path "/" f)))
+      :file (when (= ".md" (string/slice path -4))
+              (print "Parsing content " path " as markdown...")
+              (def page (md-parse (slurp path)))
+              (put page :input path)
+              (put page :url (page-get-url page))
+              (array/push pages page))))
+  (read-pages "content")
 
   # Read in templates
   (def templates @{})
@@ -457,11 +472,21 @@
       (print "Parsing template " tpath " as bar template...")
       (put templates f (template (slurp tpath) tpath))))
 
-  # Run Templates
-  (loop [page :in pages]
+  # Render a page
+  (defn render-page
+    [page url]
     (def out ((page-get-template templates page)
               page
-              pages))
-    (def outpath (string "site/" (page :url)))
+              pages
+              url))
+    (def outpath (string "site/" url))
     (print "Writing HTML to " outpath "...")
-    (spit outpath out)))
+    (create-dirs outpath)
+    (spit outpath out))
+
+  # Render all pages
+  (loop [page :in pages]
+    (def url (page :url))
+    (if (indexed? url)
+      (each u url (render-page page u))
+      (render-page page url))))
