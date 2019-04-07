@@ -6,22 +6,109 @@
 (def version "0.0.0")
 
 #
-# Markdown Sub-Languages
+# Template Syntax and Compiler
 #
 
-(def- sublangs
-  "Cached sublanguage pipes."
-  @{})
+(def- _env *env*)
+(defn- make-template-env
+  "Creates an environment that has access to both
+  symbols in the current environment and mendoza's
+  symbols."
+  []
+  (let [e (make-env *env*)]
+    (loop [[sym entry] :pairs _env
+           :when (not (entry :private))]
+      (put e sym entry))
+    e))
+
+(defn template
+  "Compile a template string into a function"
+  [source &opt where]
+
+  (default where source)
+  (def env (make-template-env))
+
+  (def bufsym (gensym))
+
+  # State for compilation machine
+  (def p (parser/new))
+  (def forms @[])
+
+  (defn compile-time-chunk
+    "Eval the capture straight away during compilation. Use for imports, etc."
+    [chunk]
+    (eval-string chunk env)
+    true)
+
+  (defn parse-chunk
+    "Parse a string and push produced values to forms."
+    [chunk]
+    (parser/consume p chunk)
+    (while (parser/has-more p)
+      (array/push forms (parser/produce p))))
+
+  (defn code-chunk
+    "Parse all the forms in str and insert them into the template."
+    [str]
+    (parse-chunk str)
+    (if (= :error (parser/status p))
+      (error (parser/error p)))
+    true)
+
+  (defn sub-chunk
+    "Same as code-chunk, but results in sending code to the buffer."
+    [str]
+    (code-chunk
+      (string " (render " str " " bufsym " state) ")))
+
+  (defn string-chunk
+    "Insert string chunk into parser"
+    [str]
+    (parser/insert p ~(,buffer/push-string ,bufsym ,str))
+    (parse-chunk "")
+    true)
+
+  # Run peg
+  (def grammar
+    ~{:code-chunk (* "{%" (drop (cmt '(any (if-not "%}" 1)) ,code-chunk)) "%}")
+      :compile-time-chunk (* "{$" (drop (cmt '(any (if-not "$}" 1)) ,compile-time-chunk)) "$}")
+      :sub-chunk (* "{{" (drop (cmt '(any (if-not "}}" 1)) ,sub-chunk)) "}}")
+      :main-chunk (drop (cmt '(any (if-not (+ "{$" "{{" "{%") 1)) ,string-chunk))
+      :main (any (+ :compile-time-chunk :code-chunk :sub-chunk :main-chunk (error "")))})
+  (def did-match (peg/match grammar source))
+
+  # Check errors in template and parser
+  (unless did-match (error "invalid template syntax"))
+  (parse-chunk "\n")
+  (parser/eof p)
+  (case (parser/status p)
+    :error (error (parser/error p)))
+
+  # Make ast from forms
+  (def ast ~(fn _template [,bufsym state]
+              # Add important bindings to make templating easier.
+              # Also helps catching template errors.
+              (def pages (state :pages))
+              (def url (state :url))
+              (def content (state :content))
+              ,;forms
+              ,bufsym))
+
+  (def ctor (compile ast env (string where ":gen")))
+  (if-not (function? ctor)
+    (error (string "could not compile template: " (string/format "%p" ctor))))
+  (ctor))
+
+#
+# Markdown Sub-Languages
+#
 
 (defn- get-sublang
   "Get a sublanguage pipe from the language name."
   [name]
-  (if-let [pipe (sublangs name)]
-    pipe
-    (let [env (require (string "sublangs/" name))
-          pipe ((env 'main) :value)]
-      (put sublangs name pipe)
-      pipe)))
+  (let [env (require (string "sublangs/" name))
+        lang ((env 'main) :value)]
+    lang))
 
 #
 # Markdown -> DOM parser
@@ -187,8 +274,7 @@
   (def matches (peg/match md-peg source))
   (unless matches (error "bad markdown"))
   (def front (eval-string (matches 0)))
-  (def ret @{:tag "div"
-             :content (tuple/slice matches 1)})
+  (def ret @{:content (tuple/slice matches 1)})
   (when (dictionary? front)
     (loop [[k v] :pairs front]
       (put ret k v)))
@@ -219,119 +305,29 @@
 
 (defn render
   "Render a document node into HTML. Returns a buffer."
-  [root &opt buf]
-  (default buf @"")
-  (defn render1
-    "Render a node"
-    [node]
-    (cond
-      (buffer? node) (buffer/push-string buf node)
-      (bytes? node) (escape node buf html-escape-chars)
-      (indexed? node) (each c node (render1 c))
-      (dictionary? node) (let [tag (node :tag)
-                               content (node :content)
-                               no-close (node :no-close)]
+  [node buf state]
+  (cond
+    (buffer? node) (buffer/push-string buf node)
+    (bytes? node) (escape node buf html-escape-chars)
+    (indexed? node) (each c node (render c buf state))
+    (dictionary? node) (let [tag (node :tag)
+                             content (node :content)
+                             temp (node :template-fn)
+                             no-close (node :no-close)]
+                         (when tag
                            (buffer/push-string buf "<" tag)
                            (loop [k :keys node :when (string? k)]
                              (buffer/push-string buf " " k "=\"")
                              (escape (node k) buf attribute-escape-chars)
                              (buffer/push-string buf "\""))
-                           (buffer/push-string buf ">")
-                           (render1 content)
-                           (unless no-close (buffer/push-string buf "</" tag ">")))
-      (escape (string node) buf html-escape-chars)))
-  (render1 root)
+                           (buffer/push-string buf ">"))
+                         (if temp
+                           (temp buf (merge state node))
+                           (render content buf state))
+                         (when (and tag (not no-close))
+                           (buffer/push-string buf "</" tag ">")))
+    (escape (string node) buf html-escape-chars))
   buf)
-
-#
-# Template Syntax and Compiler
-#
-
-(def- _env *env*)
-(defn- make-template-env
-  "Creates an environment that has access to both
-  symbols in the current environment and mendoza's
-  symbols."
-  []
-  (let [e (make-env *env*)]
-    (loop [[sym entry] :pairs _env
-           :when (not (entry :private))]
-      (put e sym entry))
-    e))
-
-(defn template
-  "Compile a template string into a function"
-  [source &opt where]
-
-  (default where (string source))
-  (def env (make-template-env))
-
-  (def bufsym (gensym))
-
-  # State for compilation machine
-  (def p (parser/new))
-  (def forms @[])
-
-  (defn compile-time-chunk
-    "Eval the capture straight away during compilation. Use for imports, etc."
-    [chunk]
-    (eval-string chunk env)
-    true)
-
-  (defn parse-chunk
-    "Parse a string and push produced values to forms."
-    [chunk]
-    (parser/consume p chunk)
-    (while (parser/has-more p)
-      (array/push forms (parser/produce p))))
-
-  (defn code-chunk
-    "Parse all the forms in str and insert them into the template."
-    [str]
-    (parse-chunk str)
-    (if (= :error (parser/status p))
-      (error (parser/error p)))
-    true)
-
-  (defn sub-chunk
-    "Same as code-chunk, but results in sending code to the buffer."
-    [str]
-    (code-chunk
-      (string " (render " str " " bufsym ") ")))
-
-  (defn string-chunk
-    "Insert string chunk into parser"
-    [str]
-    (parser/insert p ~(,buffer/push-string ,bufsym ,str))
-    (parse-chunk "")
-    true)
-
-  # Run peg
-  (def grammar
-    ~{:code-chunk (* "{%" (drop (cmt '(any (if-not "%}" 1)) ,code-chunk)) "%}")
-      :compile-time-chunk (* "{$" (drop (cmt '(any (if-not "$}" 1)) ,compile-time-chunk)) "$}")
-      :sub-chunk (* "{{" (drop (cmt '(any (if-not "}}" 1)) ,sub-chunk)) "}}")
-      :main-chunk (drop (cmt '(any (if-not (+ "{$" "{{" "{%") 1)) ,string-chunk))
-      :main (any (+ :compile-time-chunk :code-chunk :sub-chunk :main-chunk (error "")))})
-  (def did-match (peg/match grammar source))
-
-  # Check errors in template and parser
-  (unless did-match (error "invalid template syntax"))
-  (parse-chunk "\n")
-  (parser/eof p)
-  (case (parser/status p)
-    :error (error (parser/error p)))
-
-  # Make ast from forms
-  (def ast ~(fn _template [content pages url]
-              (def ,bufsym @"")
-              ,;forms
-              ,bufsym))
-
-  (def ctor (compile ast env where))
-  (if-not (function? ctor)
-    (error (string "could not compile template: " (string/format "%p" ctor))))
-  (ctor))
 
 #
 # Content Functions -> traverse the DOM
@@ -375,42 +371,17 @@
       (os/mkdir path))
     (buffer/push-string buf "/")))
 
-(def- default-template
-  "Default template for documents if no template is specified."
-  (template
-`````<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>{{ (content :title) }}</title>
-  <style type="text/css">
-.mendoza-main { color: white; background: #111; }
-.mendoza-number { color: #89dc76; }
-.mendoza-keyword { color: #ffd866; }
-.mendoza-string { color: #ab90f2; }
-.mendoza-coresym { color: #ff6188; }
-.mendoza-constant { color: #fc9867; }
-.mendoza-comment { color: darkgray; }
-.mendoza-line { color: gray; }
-  </style>
-</head>
-<body>
-{{ content }}
-</body>
-</html>
-`````))
-
 (defn- page-get-template
   "Get the template for a dom"
   [templates page]
   (def t (page :template))
-  (or (and t (templates t)) default-template))
+  (and t (templates t)))
 
 (defn- page-get-url
   "Get the output url for a dom"
   [page]
   (def o (page :url))
-  (or o (string (string/slice (page :input) 8 -4) ".html")))
+  (or o (string (string/slice (page :input) 7 -4) ".html")))
 
 (defn- rimraf
   "Remove a directory and all sub directories."
@@ -450,6 +421,14 @@
   (when (os/stat "static" :mode)
     (cp-rf "static" "site"))
 
+  # Read in templates
+  (def templates @{})
+  (when (os/stat "templates" :mode)
+    (each f (os/dir "templates")
+      (def tpath (string "templates/" f))
+      (print "Parsing template " tpath " as bar template...")
+      (put templates f (template (slurp tpath) tpath))))
+
   # Read in pages
   (def pages @[])
   (defn read-pages [path]
@@ -461,25 +440,16 @@
               (def page (md-parse (slurp path)))
               (put page :input path)
               (put page :url (page-get-url page))
+              (put page :template-fn (page-get-template templates page))
               (array/push pages page))))
   (read-pages "content")
-
-  # Read in templates
-  (def templates @{})
-  (when (os/stat "templates" :mode)
-    (each f (os/dir "templates")
-      (def tpath (string "templates/" f))
-      (print "Parsing template " tpath " as bar template...")
-      (put templates f (template (slurp tpath) tpath))))
 
   # Render a page
   (defn render-page
     [page url]
-    (def out ((page-get-template templates page)
-              page
-              pages
-              url))
-    (def outpath (string "site/" url))
+    (def state @{:url url :pages pages})
+    (def out (render page @"" state))
+    (def outpath (string "site" url))
     (print "Writing HTML to " outpath "...")
     (create-dirs outpath)
     (spit outpath out))
@@ -487,6 +457,4 @@
   # Render all pages
   (loop [page :in pages]
     (def url (page :url))
-    (if (indexed? url)
-      (each u url (render-page page u))
-      (render-page page url))))
+    (render-page page url)))

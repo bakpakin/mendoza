@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>{{ (content :title) }}</title>
+    <title>{{ (state :title) }}</title>
     <link rel="stylesheet" href="/css/main.css" type="text/css" media="screen" title="no title" charset="utf-8">
   </head>
   <body>
     <div>
       <ol>
-      {% (each page pages %}
+      {% (each p pages %}
       <li>
-        <a href="{{ (page :url) }}">{{ (page :title) }}</a>
+        <a href="{{ (p :url) }}">{{ (p :title) }}</a>
       </li>
       {% ) %}
       </ol>
