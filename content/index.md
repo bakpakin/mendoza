@@ -1,10 +1,6 @@
-(def nums
- [1 3 5 7 9 11 13 15 17 19 21])
-
 {
     :title "Mendoza"
     :template "main.html"
-    :numbers nums
 }
 
 ---
@@ -53,3 +49,15 @@ Mendoza is licensed under the MIT License.
 (def a "Hello!")
 (print a)
 ```
+
+### Macro example
+
+\(defmacro janet-example
+  "Show a janet example in code."
+  [example]
+  (def result (string/format "%.40p" (eval example)))
+  (def no-newlines (string/replace-all "\n " "" result))
+  (def code (string/format "%.40p\n# -> %s\n" example no-newlines))
+  {:tag "pre" :content {:tag "code" :content code :template "janet"}})
+
+\(janet-example (+ 1 2 3))

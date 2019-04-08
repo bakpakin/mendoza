@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width">
     <title>{{ (state :title) }}</title>
     <link rel="stylesheet" href="/css/main.css" type="text/css" media="screen" title="no title" charset="utf-8">
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.css'>
   </head>
   <body>
+    {{ content }}
     <div>
       <ol>
       {% (each p pages %}
@@ -16,7 +18,6 @@
       {% ) %}
       </ol>
     </div>
-    {{ content }}
     <footer>
       Copyright &copy; Calvin Rose {{ ((os/date) :year) }}
     </footer>

@@ -3,7 +3,7 @@
 ### Copyright © 2019 Calvin Rose
 ###
 
-# A mendoza sublanguage for highlighting janet
+# A mendoza template for highlighting janet
 # source code. You will need to include
 # CSS to highlight this, though.
 
@@ -121,5 +121,6 @@
 
 (defn main
   "Highlight janet source code and output HTML."
-  [source]
-  (buffer (0 (peg/match peg source))))
+  [buf state]
+  (def source (state :content))
+  (buffer/push-string buf (0 (peg/match peg source))))

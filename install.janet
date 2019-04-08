@@ -10,7 +10,7 @@
     (if (zero? status) true
       (error (string "command exited with status " status)))))
 
-(sh "cp ./mdz \"" prefix "/bin/mdz\"")
+(sh "cp ./mdz \"" prefix "/bin/\"")
 (sh "cp ./mendoza.janet \"" module/*syspath* "\"")
 (sh "mkdir -p \"" module/*syspath* "/sublangs\"")
-(sh "cp sublangs/janet.janet \"" module/*syspath* "/sublangs\"")
+(sh "cp sublangs/*\"" module/*syspath* "/sublangs\"")
