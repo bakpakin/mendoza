@@ -58,6 +58,6 @@ Mendoza is licensed under the MIT License.
   (def result (string/format "%.40p" (eval example)))
   (def no-newlines (string/replace-all "\n " "" result))
   (def code (string/format "%.40p\n# -> %s\n" example no-newlines))
-  {:tag "pre" :content {:tag "code" :content code :template "janet"}})
+  {:tag "pre" :content {:tag "code" :content code :language "janet"}})
 
 \(janet-example (+ 1 2 3))

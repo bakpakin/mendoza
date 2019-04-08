@@ -106,22 +106,12 @@
   [name]
   (if-let [ret (loaded-templates name)]
     ret
-    (if (= ".html" (string/slice name -6))
-      # Bar html template
-      (let [path (string "templates/" name)
-            _ (print "Requiring " path " as bar template...")
-            source (slurp path)
-            t (template source path)]
-        (put loaded-templates name t)
-        t)
-      # Janet template - useful for codeblocks and non html renderers
-      (let [path (string "templates/" name)
-            _ (print "Requiring " path " as janet template...")
-            env (require path :env (table/setproto @{} _env))
-            main-entry (env 'main)
-            t (main-entry :value)]
-        (put loaded-templates name t)
-        t))))
+    (let [path (string "templates/" name)
+          _ (print "Requiring " path " as bar template...")
+          source (slurp path)
+          t (template source path)]
+      (put loaded-templates name t)
+      t)))
 
 #
 # Markdown -> DOM parser
@@ -178,7 +168,7 @@
   {:tag "pre"
    :content {:tag "code"
              :content code
-             :template (if (= "" language) nil language)}})
+             :language (if (= "" language) nil language)}})
 
 (defn- capture-li
   "Capture a list inside the peg and create a Document Node."
@@ -300,7 +290,7 @@
     :paragraph (/ (* :lines :nl-char) ,capture-paragraph)
     :header (/ (* '(between 1 6 "#") (some :token) :nl) ,capture-header)
     :front (* (/ (* '(any (if-not "---" 1)) (argument 0)) ,eval-string) "---" :opt-nl)
-    :macro (/ (* "\\" (> 0 "(") :janet-value (argument 0)) ,eval)
+    :macro (/ (* "\\" (> 0 (set "([{")) :janet-value (argument 0)) ,eval)
     :main (* (+ :front (error "expected front matter"))
              (any (* :next
                      (+ :header :ul :ol
@@ -346,6 +336,61 @@
       (buffer/push-string buf e)
       (buffer/push-byte buf byte))))
 
+(def- language-highlighters
+  "Syntax highlighters for all languages. Grammars
+   are loaded lazily."
+  @{})
+
+(defn- get-highlighter-grammar
+  "Load a highlighter if not already loaded. Otherwise, get cached peg."
+  [name]
+  (if-let [peg (language-highlighters name)]
+    peg
+    (do
+      (require (string "syntax/" name))
+      (language-highlighters name))))
+
+(def- html-colors
+  "Default theme colors for syntax highlighting."
+  {:number "#89dc76"
+   :keyword "#ffd866"
+   :string "#ab90f2"
+   :coresym "#ff6188"
+   :constant "#fc9867"
+   :comment "darkgray"
+   :line "gray"})
+
+(defn- highlight-genhtml
+  "Paint colors for HTML"
+  [buf tokens]
+  (each token tokens
+    (if (bytes? token)
+      (escape token buf html-escape-chars)
+      (let [[class bytes] token
+            color (html-colors class)]
+        (if color
+          (do
+            (buffer/push-string buf "<span style=\"color:" color "\">")
+            (escape bytes buf html-escape-chars)
+            (buffer/push-string buf "</span>"))
+          (escape bytes buf html-escape-chars))))))
+
+(defn span
+  "Create a replacer function for a peg grammar that is used to capture
+  and color output."
+  [class]
+  (if (not (html-colors class))
+    (error (string "invalid class " class))
+    (fn [text] [class text])))
+
+(defn add-syntax
+  "Define a grammar for syntax highlighting. This just registers a
+  grammar that will be used for a given language."
+  [name grammar]
+  (def peg (if (= :core/peg (type grammar)) grammar (peg/compile grammar)))
+  (put language-highlighters name peg)
+  nil)
+
 (defn render
   "Render a document node into HTML. Returns a buffer."
   [node buf state]
@@ -353,22 +398,22 @@
     (buffer? node) (buffer/push-string buf node)
     (bytes? node) (escape node buf html-escape-chars)
     (indexed? node) (each c node (render c buf state))
-    (dictionary? node) (let [tag (node :tag)
-                             content (node :content)
-                             temp (node :template)
-                             no-close (node :no-close)]
-                         (when tag
-                           (buffer/push-string buf "<" tag)
-                           (loop [k :keys node :when (string? k)]
-                             (buffer/push-string buf " " k "=\"")
-                             (escape (node k) buf attribute-escape-chars)
-                             (buffer/push-string buf "\""))
-                           (buffer/push-string buf ">"))
-                         (if temp
-                           ((require-template temp) buf (merge state node))
-                           (render content buf state))
-                         (when (and tag (not no-close))
-                           (buffer/push-string buf "</" tag ">")))
+    (dictionary? node)
+    (let [tag (node :tag)]
+      (when tag
+        (buffer/push-string buf "<" tag)
+        (loop [k :keys node :when (string? k)]
+          (buffer/push-string buf " " k "=\"")
+          (escape (node k) buf attribute-escape-chars)
+          (buffer/push-string buf "\""))
+        (buffer/push-string buf ">"))
+      (if-let [lang (node :language)]
+        (highlight-genhtml buf (peg/match (get-highlighter-grammar lang) (node :content)))
+        (if-let [temp (node :template)]
+          ((require-template temp) buf (merge state node))
+          (render (node :content) buf state)))
+      (when (and tag (not (node :no-close)))
+        (buffer/push-string buf "</" tag ">")))
     (number? node) (buffer/push-string buf (string node)))
   buf)
 
