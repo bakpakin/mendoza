@@ -357,17 +357,21 @@
    :string "#ab90f2"
    :coresym "#ff6188"
    :constant "#fc9867"
+   :character "red"
+   :identifier "white"
    :comment "darkgray"
+   :operator "white"
+   :type "green"
    :line "gray"})
 
 (defn- highlight-genhtml
   "Paint colors for HTML"
-  [buf tokens]
+  [buf tokens colors]
   (each token tokens
     (if (bytes? token)
       (escape token buf html-escape-chars)
       (let [[class bytes] token
-            color (html-colors class)]
+            color (colors class)]
         (if color
           (do
             (buffer/push-string buf "<span style=\"color:" color "\">")
@@ -381,7 +385,7 @@
   [class]
   (if (not (html-colors class))
     (error (string "invalid class " class))
-    (fn [text] [class text])))
+    (fn [text]  [class text])))
 
 (defn add-syntax
   "Define a grammar for syntax highlighting. This just registers a
@@ -408,7 +412,9 @@
           (buffer/push-string buf "\""))
         (buffer/push-string buf ">"))
       (if-let [lang (node :language)]
-        (highlight-genhtml buf (peg/match (get-highlighter-grammar lang) (node :content)))
+        (highlight-genhtml buf 
+                           (peg/match (get-highlighter-grammar lang) (node :content))
+                           (or (state :colors) html-colors))
         (if-let [temp (node :template)]
           ((require-template temp) buf (merge state node))
           (render (node :content) buf state)))

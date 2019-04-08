@@ -3,8 +3,7 @@
 ### Copyright © 2019 Calvin Rose
 ###
 
-# A mendoza template for highlighting janet
-# source code.
+# A mendoza syntax for highlighting janet source code.
 
 (import mendoza :as mdz)
 
