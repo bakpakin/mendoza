@@ -13,4 +13,4 @@
 (sh "cp ./mdz \"" prefix "/bin/\"")
 (sh "cp ./mendoza.janet \"" module/*syspath* "\"")
 (sh "mkdir -p \"" module/*syspath* "/sublangs\"")
-(sh "cp sublangs/*\"" module/*syspath* "/sublangs\"")
+(sh "cp -r syntax \"" module/*syspath* "/syntax\"")

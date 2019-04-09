@@ -61,7 +61,7 @@
                        (between 1 3 (range "07"))
                        (* "u" :hex :hex :hex :hex)
                        (error (constant "bad hex escape"))))
-    :line-start (+ (not (> -1 1)) (> -1 "\n")) 
+    :line-start (+ (not (> -1 1)) (> -1 "\n"))
     :string (/ '(* "\"" (any (+ :escape (if-not "\"" 1))) "\"") ,(mdz/span :string))
     :character (/ '(* "'" (+ :escape (if-not "'" 1)) "'") ,(mdz/span :character))
     :digits (any (range "09"))
@@ -71,7 +71,8 @@
     :hexnumber (* :sign "0x" (any :hex))
     :octal (* :sign "0" (any (range "07")))
     :number (/ '(* :hexnumber :octal :decimal :float) ,(mdz/span :number))
-    :preproc (/ '(* (any :ws) "#" (any (if-not "\n" 1))) ,(mdz/span :line))
+    :preproc (/ '(* (any :ws) "#" (some (+ (* "\\" 1) (if-not "\n" 1))))
+                ,(mdz/span :line))
     :operator (/ '(set "+-/*%<>~!=^&|?~:;,.()[]{}") ,(mdz/span :operator))
     :root (+  (* :line-start :preproc)
              '(some :wsline)
@@ -82,7 +83,7 @@
              (/ ,constants ,(mdz/span :constant))
              (/ '(some :symchar) ,(mdz/span :identifier))
              :string
-             :comment 
+             :comment
              :number
              :operator
              :character

@@ -104,6 +104,7 @@
   "Require a template. A template can either be an HTML template, or
   a janet source file that is loaded in the normal manner."
   [name]
+  (def name (if (= (string/slice name -6) ".html") name (string name ".html")))
   (if-let [ret (loaded-templates name)]
     ret
     (let [path (string "templates/" name)
@@ -165,10 +166,12 @@
 (defn- capture-codeblock
   "Peg capture function for multiline codeblock"
   [language code]
+  (def lang (if (= "" language) nil language))
   {:tag "pre"
    :content {:tag "code"
              :content code
-             :language (if (= "" language) nil language)}})
+             "data-language" lang
+             :language lang}})
 
 (defn- capture-li
   "Capture a list inside the peg and create a Document Node."
@@ -202,6 +205,13 @@
   (parser/consume p chunk)
   (parser/eof p)
   (parser/produce p))
+
+(defn- capture-blockmac
+  "Capture a block macro."
+  [name node]
+  {:tag "div"
+   :template name
+   :content node})
 
 (def- md-grammar
   "Grammar for markdown -> document AST parser."
@@ -275,26 +285,30 @@
                      :opt-ws :opt-nl
                      :codeblock-inner
                      "```") ,capture-codeblock)
-    :table-token (+ :img :anchor :strong
+    :table-token (+ :anchor :strong
                     :em :code :macro :escape :word-span
                     '(if-not (set "\n|") 1))
     :token (* ':opt-ws (+ :img :anchor :strong
                           :em :code :macro :escape :word-span
                           '(if-not :nl-char 1)))
+    :content (+ :block-macro :header :ul :ol :codeblock :table :paragraph -1 (error ""))
     :lines (some (* (some :token) :nl))
-    :li (* (/ (some :token) ,capture-li) :nl)
-    :ulli (* :opt-ws (set "-*") :li)
-    :olli (* :opt-ws (some (range "09")) "." :li)
-    :ul (* (/ (some :ulli) ,capture-ul) :nl)
-    :ol (* (/ (some :olli) ,capture-ol) :nl)
+    :li (* (/ (some :token) ,capture-li) :opt-nl)
+    :ulli (* :opt-ws (set "-*") " " :li)
+    :olli (* :opt-ws (some (range "09")) ". " :li)
+    :ul (* (/ (some :ulli) ,capture-ul) :opt-nl)
+    :ol (* (/ (some :olli) ,capture-ol) :opt-nl)
     :paragraph (/ (* :lines :nl-char) ,capture-paragraph)
     :header (/ (* '(between 1 6 "#") (some :token) :nl) ,capture-header)
     :front (* (/ (* '(any (if-not "---" 1)) (argument 0)) ,eval-string) "---" :opt-nl)
-    :macro (/ (* "\\" (> 0 (set "([{")) :janet-value (argument 0)) ,eval)
-    :main (* (+ :front (error "expected front matter"))
-             (any (* :next
-                     (+ :header :ul :ol
-                        :codeblock :table :paragraph -1 (error "")))))})
+    :macro (/ (* "\\" (> 0 "(") :janet-value (argument 0)) ,eval)
+    :block-macro (/ (* "::" :word-span "::"
+                       (+ (* "{" :opt-ws :nl-char
+                             (group (any (* :next (if-not "}" :content))))
+                             "}")
+                          (* :opt-ws :nl-char (group :content))))
+                    ,capture-blockmac)
+    :main (* (+ :front (error "expected front matter")) (any (* :next :content)))})
 
 (def- md-peg
   "A peg that converts markdown to html."
@@ -359,7 +373,7 @@
    :constant "#fc9867"
    :character "red"
    :identifier "white"
-   :comment "darkgray"
+   :comment "gray"
    :operator "white"
    :type "green"
    :line "gray"})
