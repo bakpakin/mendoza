@@ -15,11 +15,11 @@ This is page 1
 * bork
 * bark
 
-::partial::
+::partial
 * hello
 * world
 
-::partial::{
+::partial[[
 
 One paragraph
 
@@ -28,4 +28,8 @@ Two paragraph
 * list
 * more
 
-}
+::partial
+{:title "title set in content"}
+stuff
+
+]]

@@ -104,7 +104,9 @@
   "Require a template. A template can either be an HTML template, or
   a janet source file that is loaded in the normal manner."
   [name]
-  (def name (if (= (string/slice name -6) ".html") name (string name ".html")))
+  (def name (if (string/find ".html" name) 
+              name
+              (string name ".html")))
   (if-let [ret (loaded-templates name)]
     ret
     (let [path (string "templates/" name)
@@ -208,10 +210,12 @@
 
 (defn- capture-blockmac
   "Capture a block macro."
-  [name node]
-  {:tag "div"
-   :template name
-   :content node})
+  [name state node]
+  (merge
+    {:tag "div"
+     :template name
+     :content node}
+    (or state {})))
 
 (def- md-grammar
   "Grammar for markdown -> document AST parser."
@@ -261,7 +265,8 @@
     :nl ':nl-char
     :opt-nl (? :nl-char)
     :escape (* "\\" '1)
-    :word-span '(some (range "AZ" "az" "09" "--" "__" "  "))
+    :word-span '(some (range "AZ" "az" "09" "--" "__" "  " ".." ",,"))
+    :ident '(some (range "AZ" "az" "09" "--" "__"))
     :anchor-text (* "[" (any (if-not "]" :token)) "]")
     :img-text    (* "![" (any (if-not "]" :token)) "]")
     :anchor-ref  (* "(" '(some (if-not ")" 1)) ")")
@@ -291,7 +296,7 @@
     :token (* ':opt-ws (+ :img :anchor :strong
                           :em :code :macro :escape :word-span
                           '(if-not :nl-char 1)))
-    :content (+ :block-macro :header :ul :ol :codeblock :table :paragraph -1 (error ""))
+    :content (+ :block-macro :header :ul :ol :codeblock :table :paragraph)
     :lines (some (* (some :token) :nl))
     :li (* (/ (some :token) ,capture-li) :opt-nl)
     :ulli (* :opt-ws (set "-*") " " :li)
@@ -302,13 +307,19 @@
     :header (/ (* '(between 1 6 "#") (some :token) :nl) ,capture-header)
     :front (* (/ (* '(any (if-not "---" 1)) (argument 0)) ,eval-string) "---" :opt-nl)
     :macro (/ (* "\\" (> 0 "(") :janet-value (argument 0)) ,eval)
-    :block-macro (/ (* "::" :word-span "::"
-                       (+ (* "{" :opt-ws :nl-char
-                             (group (any (* :next (if-not "}" :content))))
-                             "}")
-                          (* :opt-ws :nl-char (group :content))))
+    :block-macro (/ (* "::" :ident
+                       :next
+                       (+ (* (> 0 "{") :janet-value)
+                          (constant nil))
+                       :next
+                       (+ (* "[["
+                             (group (any (* :next (if-not "]]" :content))))
+                             :next
+                             "]]")
+                          (group :content)))
                     ,capture-blockmac)
-    :main (* (+ :front (error "expected front matter")) (any (* :next :content)))})
+    :main (* (+ :front (error "expected front matter"))
+             (any (* :next :content)))})
 
 (def- md-peg
   "A peg that converts markdown to html."

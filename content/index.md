@@ -62,6 +62,20 @@ int main()
 
 ### Macro example
 
+```janet
+(defmacro janet-example
+  "Show a janet example in code."
+  [example]
+  (def result (string/format "%.40p" (eval example)))
+  (def no-newlines (string/replace-all "\n " "" result))
+  (def code (string/format "%.40p\n# -> %s\n" example no-newlines))
+  {:tag "pre" :content {:tag "code" :content code :language "janet"}})
+
+
+# And then somewhere inside the content file, prefixed with \
+(janet-example (+ 1 2 3))
+```
+Results in:
 \(defmacro janet-example
   "Show a janet example in code."
   [example]
