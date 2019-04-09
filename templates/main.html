@@ -7,16 +7,8 @@
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.css'>
   </head>
   <body>
+    {{ {:template "navbar"} }}
     {{ content }}
-    <div>
-      <ol>
-      {% (each p pages %}
-      <li>
-        <a href="{{ (p :url) }}">{{ (p :title) }}</a>
-      </li>
-      {% ) %}
-      </ol>
-    </div>
     <footer>
       Copyright &copy; Calvin Rose {{ ((os/date) :year) }}
     </footer>
