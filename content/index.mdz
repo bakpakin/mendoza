@@ -1,0 +1,27 @@
+(import json)
+
+{
+    :title "My page"
+    :template "main"
+}
+
+---
+
+Mendoza was created to eventually be of use in the website for
+the Janet language - in this regard, it is aimed to be both a tool
+for authoring handwritten documentation files, but flexible enough
+for other static uses like a blog, slideshow, or personal website
+(things I would like to use mendoza for). However, much of this
+functionality should be plugged into Mendoza externally. The core
+of Mendoza should be fairly simple and dumb, at least in comparison
+to similar tools. It should only take a single content file to get
+a working site out of the box.
+
+
+@code["janet"]{(defn a (+ 1 2 3))}
+
+One @bigger{@strong{two}} @u{three}?
+
+@code{@json/encode[{"abcd" 1234}]}
+
+@h1{Hello Header}

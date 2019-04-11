@@ -104,7 +104,7 @@
   "Require a template. A template can either be an HTML template, or
   a janet source file that is loaded in the normal manner."
   [name]
-  (def name (if (string/find ".html" name) 
+  (def name (if (string/find ".html" name)
               name
               (string name ".html")))
   (if-let [ret (loaded-templates name)]
@@ -117,87 +117,26 @@
       t)))
 
 #
-# Markdown -> DOM parser
+# Built in Markup Macros
 #
 
-(defn- capture-header
-  "Peg capture function for parsing markdown headers."
-  [prefix & content]
-  (def n (length prefix))
-  {:tag (string "h" n)
-   :content content})
+(each tag ["h1" "h2" "h3" "h4" "h5" "h6" "ul" "ol" "li" "p" "em" "strong" "u" "pre"]
+  (defglobal tag (fn [& content] {:tag tag :content content})))
+(defn bigger [& content] {:tag "span" "style" "font-size:1.61803398875em;" :content content})
+(defn smaller [& content] {:tag "span" "style" "font-size:0.61803398875em;" :content content})
+(defn code
+  "Inline code or codeblock"
+  [lang &opt source]
+  (def source2 (or source lang))
+  (def lang2 (if source lang nil))
+  {:tag "pre" :content {:tag "code"
+                        :content source2
+                        :language lang2
+                        "data-language" lang2}})
 
-(defn- capture-anchor
-  "Peg capture function for parsing markdown links."
-  [& args]
-  {:tag "a"
-   :content (tuple/slice args 0 -2)
-   "href" (last args)})
-
-(defn- capture-image
-  "Peg capture function for parsing markdown images."
-  [& args]
-  {:tag "img"
-   :content (tuple/slice args 0 -2)
-   :no-close true
-   "src" (last args)})
-
-(defn- line-el
-  "Create a peg pattern for parsing some markup
-  on a line. Captures the HTML text to output."
-  [delim tag]
-  (defn replace
-    [& args]
-    {:tag tag
-     :content args})
-  ~(* ,delim
-      (/ (any (if-not ,delim :token)) ,replace)
-      ,delim))
-
-(defn- capture-table
-  "Peg capture function for a table"
-  [& contents]
-  {:tag "table"
-   :content contents})
-
-(defn- capture-code
-  "Peg capture function for single line of code"
-  [code]
-  {:tag "code" :content [code]})
-
-(defn- capture-codeblock
-  "Peg capture function for multiline codeblock"
-  [language code]
-  (def lang (if (= "" language) nil language))
-  {:tag "pre"
-   :content {:tag "code"
-             :content code
-             "data-language" lang
-             :language lang}})
-
-(defn- capture-li
-  "Capture a list inside the peg and create a Document Node."
-  [& contents]
-  {:tag "li"
-   :content contents})
-
-(defn- capture-ol
-  "Capture a list inside the peg and create a Document Node."
-  [& contents]
-  {:tag "ol"
-   :content contents})
-
-(defn- capture-ul
-  "Capture a list inside the peg and create a Document Node."
-  [& contents]
-  {:tag "ul"
-   :content contents})
-
-(defn- capture-paragraph
-  "Capture a paragraph node in the peg."
-  [& contents]
-  {:tag "p"
-   :content contents})
+#
+# Mendoza Markup -> DOM parser
+#
 
 (defn- capture-value
   "Parse a janet value capture in a pattern. At this point, we
@@ -208,134 +147,79 @@
   (parser/eof p)
   (parser/produce p))
 
-(defn- capture-blockmac
-  "Capture a block macro."
-  [name state node]
-  (merge
-    {:tag "div"
-     :template name
-     :content node}
-    (or state {})))
+(defn- quoter [x] ~',x)
+(defn- capture-node
+  "Capture a node in the grammar."
+  [name params body env]
+  (def source ~(,(symbol name) ,;params ,;(map quoter body)))
+  (eval source env))
 
-(def- md-grammar
+(def- symchars
+  "peg for valid symbol characters."
+  '(+ (range "09" "AZ" "az" "\x80\xFF") (set "!$%&*+-./:<?=>@^_|")))
+
+(def- value-grammar
+  "Grammar to get the source for a valid janet value. As it
+  doesn't parse the source, it can be a bit shorter and simpler."
+  ~{:ws (set " \v\t\r\f\n\0")
+    :readermac (set "';~,")
+    :symchars ,symchars
+    :token (some :symchars)
+    :hex (range "09" "af" "AF")
+    :escape (* "\\" (+ (set "ntrvzf0e\"\\") (* "x" :hex :hex)))
+    :comment (* "#" (any (if-not (+ "\n" -1) 1)))
+    :symbol (if-not (range "09") :token)
+    :bytes (* (? "@") "\"" (any (+ :escape (if-not "\"" 1))) "\"")
+    :long-bytes {:delim (some "`")
+                 :open (capture :delim :n)
+                 :close (cmt (* (not (> -1 "`")) (-> :n) ':delim) ,=)
+                 :main (drop (* (? "@") :open (any (if-not :close 1)) :close))}
+    :number (drop (cmt ':token ,scan-number))
+    :raw-value (+ :comment :number :bytes :long-bytes
+                  :ptuple :btuple :struct :symbol)
+    :value (* (any (+ :ws :readermac)) :raw-value)
+    :root (any :value)
+    :root2 (any (* :value :value))
+    :ptuple (* (? "@") "(" :root (any :ws) ")")
+    :btuple (* (? "@") "[" :root (any :ws) "]")
+    :struct (* (? "@") "{" :root2 (any :ws) "}")
+    :main (/ ':value ,capture-value)})
+
+(defn- capp [& content] (unless (empty? content) {:tag "p" :content content}))
+
+(def- markup-grammar
   "Grammar for markdown -> document AST parser."
-  ~{
+  ~{:wsnl (set " \t\r\v\f\n")
+    :ws (set " \t\r\v\f")
+    :linechar (+ (* "\\" 1) (if-not (set "@}\n") 1))
+    :leaf (/ '(* (some :linechar) (? "\n")) ,(partial string/replace "\\" ""))
+    :janet-value (+ ,value-grammar (error (position)))
+    :root (some (+ :leaf :node))
+    :node {:params (+ (* (> 0 "[") :janet-value) (constant []))
+           :body (+ (* "{" (group (any :root)) "}") (constant []))
+           :name '(if-not (range "09") (some ,symchars))
+           :main (/ (* "@" :name :params :body (argument 0)) ,capture-node)}
+    :block (/ (* (some (+ :node :leaf)) (+ "\n" "}" -1)) ,capp)
+    :err (error (/ (* '1 (position))
+                   ,(fn [x p] (string "unmatched character "
+                                      (describe x)
+                                      " at byte " p))))
+    :front (/ (* '(any (if-not "---" 1)) (argument 0)) ,eval-string)
+    :main (* :front "---" (any (+ '(some :wsnl) :node :block "}" "\n")) (+ -1 :err))})
 
-    # Sub grammar for recognizing a janet value.
-    :janet-value {:ws (set " \v\t\r\f\n\0")
-                  :readermac (set "';~,")
-                  :symchars (+ (range "09" "AZ" "az" "\x80\xFF") (set "!$%&*+-./:<?=>@^_|"))
-                  :token (some :symchars)
-                  :hex (range "09" "af" "AF")
-                  :escape (* "\\" (+ (set "ntrvzf0e\"\\")
-                                     (* "x" :hex :hex)
-                                     (error (constant "bad hex escape"))))
-                  :comment (* "#" (any (if-not (+ "\n" -1) 1)))
-                  :symbol (if-not (range "09") :token)
-                  :keyword (* ":" (any :symchars))
-                  :constant (+ "true" "false" "nil")
-                  :bytes (* "\"" (any (+ :escape (if-not "\"" 1))) "\"")
-                  :string :bytes
-                  :buffer (* "@" :bytes)
-                  :long-bytes {:delim (some "`")
-                               :open (capture :delim :n)
-                               :close (cmt (* (not (> -1 "`")) (-> :n) ':delim) ,=)
-                               :main (drop (* :open (any (if-not :close 1)) :close))}
-                  :long-string :long-bytes
-                  :long-buffer (* "@" :long-bytes)
-                  :number (drop (cmt ':token ,scan-number))
-                  :raw-value (+ :comment :constant :number :keyword
-                                :string :buffer :long-string :long-buffer
-                                :parray :barray :ptuple :btuple :struct :dict :symbol)
-                  :value (* (any (+ :ws :readermac)) :raw-value)
-                  :root (any :value)
-                  :root2 (any (* :value :value))
-                  :ptuple (* "(" :root (any :ws) (+ ")" (error "bad janet form")))
-                  :btuple (* "[" :root (any :ws) (+ "]" (error "bad janet bracketed form")))
-                  :struct (* "{" :root2 (any :ws) (+ "}" (error "bad janet dictionary")))
-                  :parray (* "@" :ptuple)
-                  :barray (* "@" :btuple)
-                  :dict (* "@" :struct)
-                  :main (/ '(+ :value (error "bad janet value")) ,capture-value)}
-
-    :next (any (+ (set "\t \n\r") -1))
-    :ws (some (set "\t "))
-    :opt-ws (any (set "\t "))
-    :nl-char (+ (* (? "\r") "\n") -1)
-    :nl ':nl-char
-    :opt-nl (? :nl-char)
-    :escape (* "\\" '1)
-    :word-span '(some (range "AZ" "az" "09" "--" "__" "  " ".." ",,"))
-    :ident '(some (range "AZ" "az" "09" "--" "__"))
-    :anchor-text (* "[" (any (if-not "]" :token)) "]")
-    :img-text    (* "![" (any (if-not "]" :token)) "]")
-    :anchor-ref  (* "(" '(some (if-not ")" 1)) ")")
-    :anchor (/ (* :anchor-text :anchor-ref) ,capture-anchor)
-    :img (/ (* :img-text :anchor-ref) ,capture-image)
-    :strong ,(line-el "**" "strong")
-    :em     ,(line-el "*" "em")
-    :trow (* "|"
-             (/ (some (* (/ (any :table-token) ,tuple)
-                         "|"
-                         :opt-ws)) ,tuple)
-             :nl)
-    :table (/ (* :trow
-                 (* (any (if-not :nl-char 1)) :nl-char)
-                 (any :trow))
-              ,capture-table)
-    :code    (* "`" (/ '(any (if-not "`" 1)) ,capture-code) "`")
-    :codeblock-inner '(any (if-not "```" 1))
-    :codeblock (/ (* "```"
-                     '(any (range "AZ" "--" "__" "az" "09")) # capture language
-                     :opt-ws :opt-nl
-                     :codeblock-inner
-                     "```") ,capture-codeblock)
-    :table-token (+ :anchor :strong
-                    :em :code :macro :escape :word-span
-                    '(if-not (set "\n|") 1))
-    :token (* ':opt-ws (+ :img :anchor :strong
-                          :em :code :macro :escape :word-span
-                          '(if-not :nl-char 1)))
-    :content (+ :block-macro :header :ul :ol :codeblock :table :paragraph)
-    :lines (some (* (some :token) :nl))
-    :li (* (/ (some :token) ,capture-li) :opt-nl)
-    :ulli (* :opt-ws (set "-*") " " :li)
-    :olli (* :opt-ws (some (range "09")) ". " :li)
-    :ul (* (/ (some :ulli) ,capture-ul) :opt-nl)
-    :ol (* (/ (some :olli) ,capture-ol) :opt-nl)
-    :paragraph (/ (* :lines :nl-char) ,capture-paragraph)
-    :header (/ (* '(between 1 6 "#") (some :token) :nl) ,capture-header)
-    :front (* (/ (* '(any (if-not "---" 1)) (argument 0)) ,eval-string) "---" :opt-nl)
-    :macro (/ (* "\\" (> 0 "(") :janet-value (argument 0)) ,eval)
-    :block-macro (/ (* "::" :ident
-                       :next
-                       (+ (* (> 0 "{") :janet-value)
-                          (constant nil))
-                       :next
-                       (+ (* "[["
-                             (group (any (* :next (if-not "]]" :content))))
-                             :next
-                             "]]")
-                          (group :content)))
-                    ,capture-blockmac)
-    :main (* (+ :front (error "expected front matter"))
-             (any (* :next :content)))})
-
-(def- md-peg
+(def- markup-peg
   "A peg that converts markdown to html."
-  (peg/compile md-grammar))
+  (peg/compile markup-grammar))
 
-(defn md-parse
-  "Parse markdown and return a dom."
+(defn markup
+  "Parse mendoza markup and evaluate it, returning a dom."
   [source]
   (def env (make-template-env))
-  (def matches (peg/match md-peg source 0 env))
+  (def matches (peg/match markup-peg source 0 env))
   (unless matches (error "bad markdown"))
-  (def front (matches 0))
-  (def ret @{:content (tuple/slice matches 1)})
-  (when (dictionary? front)
-    (loop [[k v] :pairs front]
-      (put ret k v)))
+  (def ret ~@{:content ,(tuple/slice matches 1)})
+  (loop [[k v] :pairs (matches 0) :when (keyword? k)]
+    (put ret k v))
   ret)
 
 #
@@ -437,7 +321,7 @@
           (buffer/push-string buf "\""))
         (buffer/push-string buf ">"))
       (if-let [lang (node :language)]
-        (highlight-genhtml buf 
+        (highlight-genhtml buf
                            (peg/match (get-highlighter-grammar lang) (node :content))
                            (or (state :colors) html-colors))
         (if-let [temp (node :template)]
@@ -480,7 +364,7 @@
   "Get the output url for a dom"
   [page]
   (def o (page :url))
-  (or o (string (string/slice (page :input) 7 -4) ".html")))
+  (or o (string (string/slice (page :input) 7 -5) ".html")))
 
 (defn- rimraf
   "Remove a directory and all sub directories."
@@ -526,9 +410,9 @@
     (case (os/stat path :mode)
       :directory (each f (sort (os/dir path))
                    (read-pages (string path "/" f)))
-      :file (when (= ".md" (string/slice path -4))
-              (print "Parsing content " path " as markdown...")
-              (def page (md-parse (slurp path)))
+      :file (when (= ".mdz" (string/slice path -5))
+              (print "Parsing content " path " as mendoza markup")
+              (def page (markup (slurp path)))
               (put page :input path)
               (put page :url (page-get-url page))
               (array/push pages page))))
