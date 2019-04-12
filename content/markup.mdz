@@ -1,0 +1,15 @@
+{
+    :title "Mendoza markup"
+    :template "main.html"
+}
+
+---
+
+# Mendoza Markup
+
+Mendoza markup is used to create the main content
+of your pages. It is mostly plain-text that is read by mendoza,
+transformed into a document tree, and then rendered to the final
+HTML for presentation.
+
+
