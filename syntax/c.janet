@@ -1,11 +1,11 @@
 ###
-### c.janet
+### syntax/c.janet
 ### Copyright © 2019 Calvin Rose
 ###
 
 # A mendoza syntax for highlighting C
 
-(import mendoza :as mdz)
+(import mendoza/syntax :as syntax)
 
 (defn word-set
   "Create a set of words to match, and return it as a grammar"
@@ -52,8 +52,8 @@
   ~{:ws (set " \v\t\r\f\n\0")
     :wsline (set " \v\t\r\f\0")
     :symchar (range "az" "AZ" "09" "__")
-    :line-comment (/ '(* "//" (any (if-not "\n" 1)) "\n") ,(mdz/span :comment))
-    :block-comment (/ '(* "/*" (any (if-not "*/" 1)) "*/") ,(mdz/span :comment))
+    :line-comment (/ '(* "//" (any (if-not "\n" 1)) "\n") ,(syntax/span :comment))
+    :block-comment (/ '(* "/*" (any (if-not "*/" 1)) "*/") ,(syntax/span :comment))
     :comment (+ :line-comment :block-comment)
     :hex (range "09" "af" "AF")
     :escape (* "\\" (+ (set "ntrvz0?ab\"\\")
@@ -62,26 +62,26 @@
                        (* "u" :hex :hex :hex :hex)
                        (error (constant "bad hex escape"))))
     :line-start (+ (not (> -1 1)) (> -1 "\n"))
-    :string (/ '(* "\"" (any (+ :escape (if-not "\"" 1))) "\"") ,(mdz/span :string))
-    :character (/ '(* "'" (+ :escape (if-not "'" 1)) "'") ,(mdz/span :character))
+    :string (/ '(* "\"" (any (+ :escape (if-not "\"" 1))) "\"") ,(syntax/span :string))
+    :character (/ '(* "'" (+ :escape (if-not "'" 1)) "'") ,(syntax/span :character))
     :digits (any (range "09"))
     :sign (+ "-" "+" "")
     :float (* :sign :digits (? ".") :digits (+ (* (set "Ee") :digits (? ".") :digits) ""))
     :decimal (* :sign :digits (+ "ULL" "UL" "U" "LL" "L" ""))
     :hexnumber (* :sign "0x" (any :hex))
     :octal (* :sign "0" (any (range "07")))
-    :number (/ '(* :hexnumber :octal :decimal :float) ,(mdz/span :number))
+    :number (/ '(* :hexnumber :octal :decimal :float) ,(syntax/span :number))
     :preproc (/ '(* (any :ws) "#" (some (+ (* "\\" 1) (if-not "\n" 1))))
-                ,(mdz/span :line))
-    :operator (/ '(set "+-/*%<>~!=^&|?~:;,.()[]{}") ,(mdz/span :operator))
+                ,(syntax/span :line))
+    :operator (/ '(set "+-/*%<>~!=^&|?~:;,.()[]{}") ,(syntax/span :operator))
     :root (+  (* :line-start :preproc)
              '(some :wsline)
              '"\n"
              (/ (+ ,keywords ,storage-class ,type-qualifier ,function-spec)
-                ,(mdz/span :keyword))
-             (/ ,types ,(mdz/span :type))
-             (/ ,constants ,(mdz/span :constant))
-             (/ '(some :symchar) ,(mdz/span :identifier))
+                ,(syntax/span :keyword))
+             (/ ,types ,(syntax/span :type))
+             (/ ,constants ,(syntax/span :constant))
+             (/ '(some :symchar) ,(syntax/span :identifier))
              :string
              :comment
              :number
@@ -91,4 +91,4 @@
              (error ""))
     :main (any :root)})
 
-(mdz/add-syntax "c" grammar)
+(syntax/add "c" grammar)

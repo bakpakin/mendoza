@@ -1,8 +1,5 @@
-{
-    :title "Mendoza markup"
-    :template "main.html"
-}
-
+{:title "Markup"
+ :template "main"}
 ---
 
 # Mendoza Markup
@@ -12,4 +9,44 @@ of your pages. It is mostly plain-text that is read by mendoza,
 transformed into a document tree, and then rendered to the final
 HTML for presentation.
 
+## Front Matter
 
+All mendoza markup files must contain some front matter. The front
+provides basic metadata for the document, parameters for templating, and
+whatever Janet code you want to execute for side effects. The front matter
+is just Janet source code and continues up until the @code{---}. The last
+value in the front matter should be a table or struct, and will be merged
+into the root node of the final document tree.
+
+Example:
+
+@codeblock["janet"
+```{:title "My Blog Post"
+ :description "Mendoza is a new static site generator!"
+ :template "main.html"}
+# End of front matter
+---
+# Markup here...
+```]
+
+## Basic Syntax
+
+### Paragraphs
+
+After the front matter, the basic syntax of Mendoza markup
+is pretty simple. Blocks of plain text separated by blank lines
+become paragraphs. Mendoza
+supports UTF-8, so there is no need to escape characters. To escape
+a byte, use a backslash followed by the byte.
+
+### Headers
+
+Simple, markdown like headers occur at the beginning of a line.
+They are formed by 1 to 6 @code{#} characters in a line, followed
+by the header title.
+
+### Macros
+
+For all other markup, Mendoza requires the use of macros. Headers and paragraphs
+can be specified with macros as well, but there is direct syntactic support for
+these because they are so common.

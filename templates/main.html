@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
+    {{ {:template "head"} }}
     <title>{{ (state :title) }}</title>
-    <link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.css'>
   </head>
   <body>
-    {{ {:template "navbar"} }}
-    {{ content }}
+    {{ {:template "heading"} }}
+    <div class="content-wrapper">
+      {{ content }}
+    </div>
+    <div class="pre-footer">
+      <hr>
+    </div>
     <footer>
       Copyright &copy; Calvin Rose {{ ((os/date) :year) }}
     </footer>

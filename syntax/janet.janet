@@ -1,11 +1,11 @@
 ###
-### janet.janet
+### syntax/janet.janet
 ### Copyright © 2019 Calvin Rose
 ###
 
 # A mendoza syntax for highlighting janet source code.
 
-(import mendoza :as mdz)
+(import mendoza/syntax :as syntax)
 
 (def- core-env (table/getproto *env*))
 (def- specials {'fn true
@@ -36,20 +36,20 @@
     :escape (* "\\" (+ (set "ntrvzf0e\"\\")
                        (* "x" :hex :hex)
                        (error (constant "bad hex escape"))))
-    :comment (/ '(* "#" (any (if-not (+ "\n" -1) 1))) ,(mdz/span :comment))
+    :comment (/ '(* "#" (any (if-not (+ "\n" -1) 1))) ,(syntax/span :comment))
     :symbol (/ ':token ,capture-sym)
-    :keyword (/ '(* ":" (any :symchars)) ,(mdz/span :keyword))
-    :constant (/ '(+ "true" "false" "nil") ,(mdz/span :constant))
+    :keyword (/ '(* ":" (any :symchars)) ,(syntax/span :keyword))
+    :constant (/ '(+ "true" "false" "nil") ,(syntax/span :constant))
     :bytes (* "\"" (any (+ :escape (if-not "\"" 1))) "\"")
-    :string (/ ':bytes ,(mdz/span :string))
-    :buffer (/ '(* "@" :bytes) ,(mdz/span :string))
+    :string (/ ':bytes ,(syntax/span :string))
+    :buffer (/ '(* "@" :bytes) ,(syntax/span :string))
     :long-bytes {:delim (some "`")
                  :open (capture :delim :n)
                  :close (cmt (* (not (> -1 "`")) (-> :n) ':delim) ,=)
                  :main (drop (* :open (any (if-not :close 1)) :close))}
-    :long-string (/ ':long-bytes ,(mdz/span :string))
-    :long-buffer (/ '(* "@" :long-bytes) ,(mdz/span :string))
-    :number (/ (cmt ':token ,check-number) ,(mdz/span :number))
+    :long-string (/ ':long-bytes ,(syntax/span :string))
+    :long-buffer (/ '(* "@" :long-bytes) ,(syntax/span :string))
+    :number (/ (cmt ':token ,check-number) ,(syntax/span :number))
     :raw-value (+ :comment :constant :number :keyword
                   :string :buffer :long-string :long-buffer
                   :parray :barray :ptuple :btuple :struct :dict :symbol)
@@ -64,4 +64,4 @@
     :dict (* '"@"  :struct)
     :main (+ :root (error ""))})
 
-(mdz/add-syntax "janet" grammar)
+(syntax/add "janet" grammar)

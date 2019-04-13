@@ -82,13 +82,17 @@
 
 (def- loaded-templates @{})
 
+(defn- norm-name
+  [name]
+  (if (string/find ".html" name)
+    name
+    (string name ".html")))
+
 (defn load
   "Require a template. A template can either be an HTML template, or
   a janet source file that is loaded in the normal manner."
   [name]
-  (def name (if (string/find ".html" name)
-              name
-              (string name ".html")))
+  (def name (norm-name name))
   (if-let [ret (loaded-templates name)]
     ret
     (let [path (string "templates/" name)
@@ -97,3 +101,9 @@
           t (template source path)]
       (put loaded-templates name t)
       t)))
+
+(defn unload
+  "Unload all loaded templates"
+  []
+  (loop [name :keys loaded-templates]
+    (put loaded-templates (norm-name name) nil)))

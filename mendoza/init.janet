@@ -7,6 +7,8 @@
 
 (import mendoza/markup :as markup)
 (import mendoza/render :as render)
+(import mendoza/syntax :as syntax)
+(import mendoza/template :as template)
 
 #
 # File System Helpers
@@ -60,7 +62,11 @@
   "Clean up the old site."
   []
   (print "Removing directory site...")
-  (rimraf "site"))
+  (rimraf "site")
+  (print "Unloading templates...")
+  (template/unload)
+  (print "Unloading syntaxes...")
+  (syntax/unload))
 
 (defn serve
   "Serve the site locally."
@@ -108,3 +114,28 @@
   (loop [page :in pages]
     (def url (page :url))
     (render-page page url)))
+
+(defn watch
+  "Watch for files changing, and re-run mendoza when source files
+  change. Only works when content files and templates change, and
+  only on linxu for now."
+  []
+  (defn rebuild []
+    (def f (fiber/new build :e))
+    (def res (resume f))
+    (case (fiber/status f)
+      :error (do
+               (:write stdout "build ")
+               (:flush stdout)
+               (debug/stacktrace f res))))
+  (rebuild)
+  (def cmd  "inotifywait -m -r content syntax templates static -e modify")
+  (def proc (file/popen cmd :r))
+  (if (not proc) (error "could not run " (describe cmd)))
+  (while true
+    (print "waiting...")
+    (def x (:read proc :line))
+    (if (or (not x) (empty? x)) (break))
+    (print "event: " x)
+    (rebuild))
+  (file/close proc))

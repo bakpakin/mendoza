@@ -44,11 +44,13 @@
   "Render a document node into HTML. Returns a buffer."
   [node buf state]
   (cond
-    (buffer? node) (buffer/push-string buf node)
-    (bytes? node) (escape node buf html-escape-chars)
+    (bytes? node) (if (state :no-escape)
+                    (buffer/push-string buf node)
+                    (escape node buf html-escape-chars))
     (indexed? node) (each c node (render c buf state))
     (dictionary? node)
-    (let [tag (node :tag)]
+    (let [next-state (merge state node)
+          tag (node :tag)]
       (when tag
         (buffer/push-string buf "<" tag)
         (loop [k :keys node :when (string? k)]
@@ -57,13 +59,13 @@
           (buffer/push-string buf "\""))
         (buffer/push-string buf ">"))
       (if-let [lang (node :language)]
-        (highlight-genhtml buf
-                           (peg/match (syntax/load lang)
-                                      (render (node :content) @"" state))
-                           (or (state :colors) syntax/default-colors))
+        (let [content (render (node :content) @"" next-state)
+              matches (peg/match (syntax/load lang) content)
+              colors (or (next-state :colors) syntax/default-colors)]
+          (highlight-genhtml buf matches colors))
         (if-let [temp (node :template)]
-          ((template/load temp) buf (merge state node) render)
-          (render (node :content) buf state)))
+          ((template/load temp) buf next-state render)
+          (render (node :content) buf next-state)))
       (when (and tag (not (node :no-close)))
         (buffer/push-string buf "</" tag ">")))
     (number? node) (buffer/push-string buf (string node)))

@@ -5,6 +5,16 @@
 
 (def- base-env (require "mendoza/markup-env"))
 
+(defn- capture-front
+  "Capture the front matter"
+  [chunk]
+  (def p (parser/new))
+  (parser/consume p chunk)
+  (parser/eof p)
+  (def ret @[])
+  (while (parser/has-more p) (array/push ret (parser/produce p)))
+  ret)
+
 (defn- capture-value
   "Parse a janet value capture in a pattern. At this point, we
   should already know that the source is valid."
@@ -52,6 +62,9 @@
     :struct (* (? "@") "{" :root2 (any :ws) "}")
     :main (/ ':value ,capture-value)})
 
+# Some capture functions to make markup a bit
+# more like markdown. This is useful in the common
+# case.
 (defn- capp [& content] (unless (empty? content)
                           {:tag "p" :content (array/slice content)}))
 (defn- caph [n & content] {:tag (string "h" (length n)) :content
@@ -88,7 +101,7 @@
                                       " at byte " p))))
 
     # Front matter
-    :front (/ '(any (if-not "---" 1)) ,capture-value)
+    :front (/ '(any (if-not "---" 1)) ,capture-front)
 
     :janet-value (+ ,value-grammar (error (position)))
 
@@ -113,8 +126,10 @@
   (def env (table/setproto @{} base-env))
   (def matches (peg/match markup-peg source))
   (unless matches (error "bad markdown"))
-  (def evaled (seq [ast :in matches] (eval ast env)))
-  (def ret @{:content (tuple/slice evaled 1)})
-  (loop [[k v] :pairs (evaled 0) :when (keyword? k)]
-    (put ret k v))
-  ret)
+  (def front-matter (matches 0))
+  (loop [ast :in (tuple/slice front-matter 0 -2)]
+    (eval ast env))
+  (merge 
+    (eval (last front-matter) env)
+    {:content (seq [ast :in (tuple/slice matches 1)]
+                   (eval ast env))}))

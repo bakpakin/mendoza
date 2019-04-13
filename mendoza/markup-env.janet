@@ -20,6 +20,7 @@
   (def lang2 (if source lang nil))
   {:tag "pre" :content {:tag "code"
                         :content source2
+                        :no-escape (not (not lang2))
                         :language lang2
                         "data-language" lang2}})
 (defn link
