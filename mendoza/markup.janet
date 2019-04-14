@@ -4,6 +4,7 @@
 ###
 
 (def- base-env (require "mendoza/markup-env"))
+(table/setproto base-env (table/getproto *env*))
 
 (defn- capture-front
   "Capture the front matter"

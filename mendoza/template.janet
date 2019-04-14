@@ -3,12 +3,15 @@
 ### Copyright © Calvin Rose 2019
 ###
 
+(def- base-env (require "mendoza/template-env"))
+(table/setproto base-env (table/getproto *env*))
+
 (defn- template
   "Compile a bar template string into a function."
   [source &opt where]
 
   (default where source)
-  (def env (table/setproto @{} *env*))
+  (def env (table/setproto @{} base-env))
   (def bufsym (gensym))
 
   # State for compilation machine
