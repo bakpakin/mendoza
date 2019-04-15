@@ -128,9 +128,18 @@
   (def matches (peg/match markup-peg source))
   (unless matches (error "bad markdown"))
   (def front-matter (matches 0))
-  (loop [ast :in (tuple/slice front-matter 0 -2)]
-    (eval ast env))
-  (merge 
-    (eval (last front-matter) env)
-    {:content (seq [ast :in (tuple/slice matches 1)]
-                   (eval ast env))}))
+  (def old-env *env*)
+  (defn do-contents []
+      (loop [ast :in (tuple/slice front-matter 0 -2)]
+        (eval ast))
+      (def matter (eval (last front-matter) env))
+      (merge matter
+             {:content (seq [ast :in (tuple/slice matches 1)]
+                            (eval ast))}))
+  (def f (fiber/new do-contents :e))
+  (set *env* env)
+  (def res (resume f))
+  (set *env* old-env)
+  (case (fiber/status f)
+    :error (error res)
+    res))

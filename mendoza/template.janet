@@ -81,7 +81,15 @@
   (def ctor (compile ast env (string where ":gen")))
   (if-not (function? ctor)
     (error (string "could not compile template: " (string/format "%p" ctor))))
-  (ctor))
+
+  (let [f (fiber/new ctor :e)
+        old-env *env*]
+    (set *env* env)
+    (def res (resume f))
+    (set *env* old-env)
+    (case res
+      :error (error res)
+      res)))
 
 (def- loaded-templates @{})
 
