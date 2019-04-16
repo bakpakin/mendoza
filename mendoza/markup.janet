@@ -4,7 +4,7 @@
 ###
 
 (def- base-env (require "mendoza/markup-env"))
-(table/setproto base-env (table/getproto *env*))
+(table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
 (defn- capture-front
   "Capture the front matter"
@@ -128,18 +128,16 @@
   (def matches (peg/match markup-peg source))
   (unless matches (error "bad markdown"))
   (def front-matter (matches 0))
-  (def old-env *env*)
   (defn do-contents []
       (loop [ast :in (tuple/slice front-matter 0 -2)]
         (eval ast))
-      (def matter (eval (last front-matter) env))
+      (def matter (eval (last front-matter)))
       (merge matter
              {:content (seq [ast :in (tuple/slice matches 1)]
                             (eval ast))}))
   (def f (fiber/new do-contents :e))
-  (set *env* env)
+  (fiber/setenv f env)
   (def res (resume f))
-  (set *env* old-env)
   (case (fiber/status f)
     :error (error res)
     res))

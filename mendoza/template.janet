@@ -4,7 +4,7 @@
 ###
 
 (def- base-env (require "mendoza/template-env"))
-(table/setproto base-env (table/getproto *env*))
+(table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
 (defn- template
   "Compile a bar template string into a function."
@@ -82,11 +82,9 @@
   (if-not (function? ctor)
     (error (string "could not compile template: " (string/format "%p" ctor))))
 
-  (let [f (fiber/new ctor :e)
-        old-env *env*]
-    (set *env* env)
+  (let [f (fiber/new ctor :e)]
+    (fiber/setenv f env)
     (def res (resume f))
-    (set *env* old-env)
     (case res
       :error (error res)
       res)))
