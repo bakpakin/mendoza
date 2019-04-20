@@ -20,9 +20,9 @@ for the kind of templating I wanted to be able to do, the syntax is
 too ambiguous/complicated/whitespace sensitive, and it is not
 tied close enough to host lanugage, Janet.
 
-Instead, with inspiration from @link["https://https://docs.racket-lang.org/scribble/"]{Scribble}, 
+Instead, with inspiration from @link[https://https://docs.racket-lang.org/scribble/]{Scribble}, 
 we are using a macro system which expands the entire document into a Janet data structure, and
-then calls @code{eval} on that data structure to genereate a document. That document is then
+then calls @code[eval] on that data structure to genereate a document. That document is then
 rendered into HTML, with each node having an optional bar template. This design is flexible enough
 to let us dictate form from the markup (via janet functions and macros) and from the templates
 (templates can wrap nodes in HTML, and even call other janet functions to render markup in

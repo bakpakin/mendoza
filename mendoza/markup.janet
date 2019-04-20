@@ -27,10 +27,8 @@
 
 (defn- capture-node
   "Capture a node in the grammar."
-  [name params body]
-  (if body
-    ~(,(symbol name) ,;params ,body)
-    ~(,(symbol name) ,;params)))
+  [name & params]
+  ~(,(symbol name) ,;params))
 
 (def- symchars
   "peg for valid symbol characters."
@@ -90,10 +88,12 @@
     :root-line (some (+ :node :leaf-line))
 
     # An @ expression (a node)
-    :node {:params (+ (* (> 0 "[") :janet-value) (constant []))
-           :body (+ (* "{" (/ (any :root) ,array) "}") (constant nil))
+    :node {:paren-params (* "(" (any :wsnl) (any (* :janet-value (any :wsnl))) ")")
+           :curly-params (* "{" (/ (any :root) ,array) "}")
+           :bracket-params (* "[" '(any (if-not "]" 1)) "]")
+           :params (any (* (any :wsnl) (+ :bracket-params :curly-params :paren-params)))
            :name '(if-not (range "09") (some ,symchars))
-           :main (/ (* "@" :name :params :body) ,capture-node)}
+           :main (/ (* "@" :name :params) ,capture-node)}
 
     # Pretty errors
     :err (error (/ (* '1 (position))
@@ -104,7 +104,7 @@
     # Front matter
     :front (/ '(any (if-not "---" 1)) ,capture-front)
 
-    :janet-value (+ ,value-grammar (error (position)))
+    :janet-value ,value-grammar
 
     # Headers (only at top level)
     :header (/ (* '(between 1 6 "#") (any :ws) :root-line) ,caph)
