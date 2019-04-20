@@ -53,10 +53,13 @@
           tag (node :tag)]
       (when tag
         (buffer/push-string buf "<" tag)
-        (loop [k :keys node :when (string? k)]
-          (buffer/push-string buf " " k "=\"")
-          (escape (node k) buf attribute-escape-chars)
-          (buffer/push-string buf "\""))
+        (loop [k :keys node :when (string? k) :let [v (node k)]]
+          (if (= v true) # No value, just attribute
+            (buffer/push-string buf " " k)
+            (do
+              (buffer/push-string buf " " k "=\"")
+              (escape (node k) buf attribute-escape-chars)
+              (buffer/push-string buf "\""))))
         (buffer/push-string buf ">"))
       (if-let [lang (node :language)]
         (let [content (render (node :content) @"" next-state)

@@ -174,17 +174,17 @@ hr {
 
 /* Tables */
 
-table {
+.mendoza-table {
     width: calc(100% - 40px);
     margin: 25px 20px;
 }
 
-table tr {
+.mendoza-table tr {
     border-top: 1px solid #cccccc;
     background-color: white;
 }
 
-table tr th {
+.mendoza-table tr th {
     font-weight: bold;
     border: 1px solid #cccccc;
     text-align: left;
@@ -192,18 +192,18 @@ table tr th {
     padding: 8px 15px;
 }
 
-table tr td {
+.mendoza-table tr td {
     border: 1px solid #cccccc;
     text-align: left;
     margin: 0;
     padding: 8px 15px;
 }
 
-table tr th :first-child, table tr td :first-child {
+.mendoza-table tr th :first-child, table tr td :first-child {
     margin-top: 0;
 }
 
-table tr th :last-child, table tr td :last-child {
+.mendoza-table tr th :last-child, table tr td :last-child {
     margin-bottom: 0;
 }
 
@@ -238,4 +238,16 @@ footer {
     font-size: 1.1em;
     text-decoration: none;
     margin-right: 8px;
+}
+
+.mendoza-video {
+    display: block;
+    margin: auto;
+    padding: 32px;
+}
+
+.mendoza-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

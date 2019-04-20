@@ -1,0 +1,6 @@
+#!/usr/bin/env janet
+
+(import cook)
+
+(cook/shell "rm \"" cook/prefix "/bin/mdz\"")
+(cook/shell "rm -rf \"" module/*syspath* "/mendoza\"")
