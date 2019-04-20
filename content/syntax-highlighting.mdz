@@ -12,11 +12,11 @@ languages. Built in grammars include @link["https://janet-lang.org"]{Janet}, C, 
 
 Syntax highlighting occurs in @code{\@codeblock} blocks. For example, the following markup will do syntax highlighting for some Janet source code.
 
-@codeblock[````@codeblock["janet" `(def a (+ 1 2))`]````]
+@codeblock(````@codeblock[janet](`(def a (+ 1 2))`)````)
 
 Produces:
 
-@codeblock["janet" `(def a (+ 1 2))`]
+@codeblock[janet](`(def a (+ 1 2))`)
 
 ## Adding More Grammars
 
@@ -27,4 +27,4 @@ if you reference them in your content files.
 
 The built-in grammars are probably a good starting point if you
 would like highlighting for a language that is not yet supported.
-Alternatively, you can raise an issue on @link["https://github.com/bakpakin/mendoza/"]{GitHub} for more built-in grammars.
+Alternatively, you can raise an issue on @link[https://github.com/bakpakin/mendoza/]{GitHub} for more built-in grammars.

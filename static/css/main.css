@@ -86,7 +86,7 @@ a {
 /* Code */
 
 code, pre {
-    font-family: 'Inconsolata', monospace;
+    font-family: monospace;
     white-space: pre-wrap;
 }
 
@@ -100,7 +100,7 @@ pre {
 }
 
 h1, h2, h3 {
-    font-family: 'Dosis', sans-serif;
+    font-family: 'Helvetica';
     color: #111;
     border-bottom: solid 2px #CCC;
 }

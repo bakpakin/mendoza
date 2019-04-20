@@ -120,6 +120,13 @@
   change. Only works when content files and templates change, and
   only on linxu for now."
   []
+
+  # Check which directories exist
+  (def watched-dirs @"")
+  (each path ["static" "templates" "syntax" "content"]
+    (if (os/stat path :mode)
+      (buffer/push-string watched-dirs path " ")))
+
   (defn rebuild []
     (def f (fiber/new build :e))
     (def res (resume f))
@@ -129,7 +136,7 @@
                (:flush stdout)
                (debug/stacktrace f res))))
   (rebuild)
-  (def cmd  "inotifywait -m -r content syntax templates static -e modify")
+  (def cmd (string "inotifywait -m -r " watched-dirs "-e modify"))
   (def proc (file/popen cmd :r))
   (if (not proc) (error "could not run " (describe cmd)))
   (while true
