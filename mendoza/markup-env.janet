@@ -10,9 +10,17 @@
 
 (each tag ["ul" "ol" "li" "p" "em" "strong" "u" "pre" "sub" "sup"]
   (defglobal tag (fn [content] {:tag tag :content content})))
+
+(defn tag
+  "Wrap some content in an html tag. If you need attributes or other properties,
+  you may want to use raw HTML via the html function."
+  [name content]
+  {:tag name :content content})
+
 (defn bigger [content] {:tag "span" "style" "font-size:1.61803398875em;" :content content})
 (defn smaller [content] {:tag "span" "style" "font-size:0.61803398875em;" :content content})
 (defn code [content] {:tag "code" :content content})
+
 (defn codeblock
   "Inline code or codeblock"
   [lang &opt source]
@@ -50,26 +58,26 @@
 (defn youtube 
   "Add an embedded youtube video in the page"
   [id]
-  (center {:tag "iframe"
-           "class" "mendoza-video"
-           "width" "560"
-           "height" "315"
-           "frameborder" "0"
-           "allowfullscreen" true
-           "align" "center"
-           "src" (string "//www.youtube.com/embed/" id)}))
+  {:tag "iframe"
+   "class" "mendoza-video"
+   "width" "560"
+   "height" "315"
+   "frameborder" "0"
+   "allowfullscreen" true
+   "align" "center"
+   "src" (string "//www.youtube.com/embed/" id)})
 
 (defn vimeo
   "Add an embedded vimeo video in the page"
   [id]
-  (center {:tag "iframe"
-           "class" "mendoza-video"
-           "width" "560"
-           "height" "315"
-           "frameborder" "0"
-           "allowfullscreen" true
-           "align" "center"
-           "src" (string "//player.vimeo.com/video/" id)}))
+  {:tag "iframe"
+   "class" "mendoza-video"
+   "width" "560"
+   "height" "315"
+   "frameborder" "0"
+   "allowfullscreen" true
+   "align" "center"
+   "src" (string "//player.vimeo.com/video/" id)})
 
 (defn gist
   "Embed a github gist"
@@ -92,5 +100,7 @@
 (defn instagram
   "Add an instagram link in the page"
   [id]
-  (center {:no-escape true
-           :content (string/replace "!!!!!" (string id) insta-html)}))
+  {:tag "div"
+   "class" "mendoza-video"
+   :content {:no-escape true
+             :content (string/replace "!!!!!" (string id) insta-html)}})

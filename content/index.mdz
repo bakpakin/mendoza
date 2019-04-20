@@ -20,8 +20,6 @@ for the kind of templating I wanted to be able to do, the syntax is
 too ambiguous/complicated/whitespace sensitive, and it is not
 tied close enough to host lanugage, Janet.
 
-@gist["bakpakin/2dc3134af320c937315e97882cb53248"]
-
 Instead, with inspiration from @link["https://https://docs.racket-lang.org/scribble/"]{Scribble}, 
 we are using a macro system which expands the entire document into a Janet data structure, and
 then calls @code{eval} on that data structure to genereate a document. That document is then
@@ -29,14 +27,6 @@ rendered into HTML, with each node having an optional bar template. This design 
 to let us dictate form from the markup (via janet functions and macros) and from the templates
 (templates can wrap nodes in HTML, and even call other janet functions to render markup in
 arbitrary ways. HTML, however, remains the sole intended output format.
-
-@youtube["PvFo6eWNssk"]
-
-@vimeo["331297646"]
-
-@instagram["BwaZGyOAzzQ"]
-
-@asciinema["331"]
 
 ## Differences from Markdown
 

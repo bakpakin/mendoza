@@ -1,0 +1,80 @@
+{
+    :title "Markup Commands"
+    :template "main.html"
+}
+---
+# Markup Commands
+
+There are a number of markup commands to help style your content. A richly formatted
+document will use many of these.
+
+## Basic Commands
+
+### @code[`@tag["tagname"]{...}`]
+
+Wrap some content in an HTML tag. useful for building
+other more complicated commands, or inserting a one of
+piece of HTML that cannot be expressed with other commands.
+
+### @code[`@ul{...}, @ol{...}, @li{...}, @p{...}, @em{...}, @strong{...}, @u{...}, @pre{...}, @sub{...}, @sup{...}`]
+
+Wrap content in the corresponding HTML tags.
+
+### @code[`@center{...}`]
+
+Centers some rich content in the output document.
+
+### @code[`@codeblock[...]`]
+
+See @link["/syntax-highlighting.html"]{Syntax Highlighting}
+
+### @code[`@bigger{...}, @smaller{...}`]
+
+Make the text bigger or smaller incrementally. Example:
+
+@codeblock[`This text gets \@bigger{bigger \@bigger{and \@bigger{bigger!}}}`]
+This text gets @bigger{bigger @bigger{and @bigger{bigger!}}}
+
+@codeblock[`This text gets \@smaller{smaller \@smaller{and \@smaller{smaller!}}}`]
+This text gets @smaller{smaller @smaller{and @smaller{smaller!}}}
+
+## External Content
+
+There are a number of built in functions that let you embed content from
+external sites in generated HTML. Some of these may only work with an HTTPS
+site, such as instagram embeds.
+
+### @link["https://gist.github.com/"]{GitHub Gists}
+
+@codeblock{\@gist["bakpakin/2dc3134af320c937315e97882cb53248"]}}
+@gist["bakpakin/2dc3134af320c937315e97882cb53248"]}
+
+### @link["https://www.youtube.com/"]{YouTube}
+
+@codeblock{\@youtube["PvFo6eWNssk"]}
+@youtube["PvFo6eWNssk"]
+
+### @link["https://vimeo.com/"]{Vimeo}
+
+@codeblock{\@vimeo["331297646"]}
+@vimeo["331297646"]
+
+### @link["https://www.instagram.com/"]{Instagram}
+
+@codeblock{\@instagram["BwaZGyOAzzQ"]}
+
+@instagram["BwaZGyOAzzQ"]
+
+### @link["https://asciinema.org/"]{asciinema}
+
+@codeblock{\@asciinema["331"]}
+
+Asciinema embeds can also take arguments, corresponding to the arguments defined
+@link["https://asciinema.org/docs/embedding"]{Here}. For example,
+
+@codeblock{\@asciinema["331" :size "small" :autoplay true :theme "monokai"]}
+
+Will set the appropriate parameters on the embedded script element.
+
+@asciinema["331"]
+

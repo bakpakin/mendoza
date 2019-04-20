@@ -59,6 +59,10 @@ body {
     max-width: 800px;
 }
 
+.inner-wrapper {
+    padding: 0 12px;
+}
+
 @media (max-width: 1000px) {
     .content-wrapper {
         max-width: 600px;
@@ -68,20 +72,16 @@ body {
 ol, ul {
     margin-top: 15px;
     margin-bottom: 15px;
-    margin-left: 45px;
-    margin-right: 20px;
+    margin-left: 25px;
 }
 
 p {
-    margin-left: 20px;
-    margin-right: 20px;
     margin-bottom: 1em;
 }
 
 a {
     color: #2674d3;
 }
-
 
 /* Code */
 
@@ -91,7 +91,7 @@ code, pre {
 }
 
 pre {
-    margin: 15px;
+    margin: 15px 0;
     line-height: 1.2;
     border-radius: 5px;
     padding: 10px;
@@ -100,27 +100,26 @@ pre {
 }
 
 h1, h2, h3 {
-    margin-left: 15px;
-    margin-right: 15px;
     font-family: 'Dosis', sans-serif;
     color: #111;
+    border-bottom: solid 2px #CCC;
 }
 
 h1 {
     font-size: 3rem;
     padding-top: 3rem;
-    padding-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 h2 {
     font-size: 2rem;
     padding-top: 32px;
-    padding-bottom: 24px;
+    margin-bottom: 24px;
 }
 h3 {
     color: #333;
     font-size: 1.6rem;
     padding-top: 18px;
-    padding-bottom: 16px;
+    margin-bottom: 16px;
 }
 
 @media (max-width: 700px) {
@@ -210,7 +209,7 @@ hr {
 /* Footer */
 
 .pre-footer {
-    margin-top: 35px;
+    margin-top: 65px;
 }
 
 footer {
@@ -242,8 +241,7 @@ footer {
 
 .mendoza-video {
     display: block;
-    margin: auto;
-    padding: 32px;
+    padding: 32px 0;
 }
 
 .mendoza-center {
