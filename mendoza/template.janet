@@ -78,8 +78,7 @@
               (def pages (state :pages))
               (def url (state :url))
               (def content (state :content))
-              (def siblings (state :siblings))
-              (def toc (state :toc))
+              (def sitemap (state :sitemap))
               ,;forms
               ,bufsym))
 

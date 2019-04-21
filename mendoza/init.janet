@@ -9,6 +9,7 @@
 (import mendoza/render :as render)
 (import mendoza/syntax :as syntax)
 (import mendoza/template :as template)
+(import mendoza/sitemap :as sitemap)
 
 #
 # File System Helpers
@@ -53,28 +54,6 @@
         (each subpath (os/dir path) (rimraf (string path "/" subpath)))
         (os/rmdir path))
       (os/rm path))))
-
-(defn- insert-into
-  "Insert into a nested table with a list of keys. Creates
-  subtables as needed."
-  [ds value & ks]
-  (var tab ds)
-  (for i 0 (- (length ks) 1)
-    (def k (ks i))
-    (if-let [subtab (tab k)]
-      (set tab subtab)
-      (let [newtab @{}]
-        (put tab k newtab)
-        (set tab newtab))))
-  (put tab (last ks) value))
-
-(defn- keymap
-  "Map function over keys and values in a map."
-  [tab f]
-  (def newtab @{})
-  (loop [k :keys tab]
-    (put newtab k (f k (tab k))))
-  newtab)
 
 #
 # Main API
@@ -122,38 +101,13 @@
               (array/push pages page))))
   (read-pages "content")
 
-  # Construct page tree
-  (def root @{})
-  (each page pages
-    (def frags (string/split "/" (string/slice (page :url) 1)))
-    (put page :fragment (last frags))
-    (put page :fragments frags)
-    (insert-into root page ;frags))
-
-  # For ordering children
-  (defn kid-sort-rep
-    [k]
-    [(if-let [page (k :page)] (page :order))
-     (if-let [page (k :page)] (page :title))
-     (k :name)])
-  (defn order-kids
-    [k1 k2]
-    (order< (kid-sort-rep k1) (kid-sort-rep k2)))
-
-  # Contruct TOC
-  (defn make-toc
-    [[name root siblings]]
-    (def kids (map make-toc (seq [k :keys root :when (string? k)] [k (root k) root])))
-    (sort kids order-kids)
-    (if (empty? kids)
-      (do (put root :siblings siblings) {:name (or (root :title) name) :page root})
-      {:name name :kids kids}))
-  (def toc ((make-toc ["/" root nil]) :kids))
+  # Make sitemap
+  (def smap (sitemap/create pages))
 
   # Render a page
   (defn render-page
     [page url]
-    (def state @{:url url :pages pages :root root :toc toc :siblings (page :siblings)})
+    (def state @{:url url :pages pages :sitemap smap})
     (def out (render/render page @"" state))
     (def outpath (string "site" url))
     (print "Writing HTML to " outpath "...")
