@@ -78,6 +78,8 @@
               (def pages (state :pages))
               (def url (state :url))
               (def content (state :content))
+              (def siblings (state :siblings))
+              (def toc (state :toc))
               ,;forms
               ,bufsym))
 

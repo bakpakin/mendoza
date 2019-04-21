@@ -1,5 +1,6 @@
 {:title "Markup"
- :template "main"}
+ :template "main"
+ :order 3}
 ---
 
 # Mendoza Markup

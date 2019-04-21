@@ -5,4 +5,3 @@
 (cook/shell "cp ./mdz \"" cook/prefix "/bin/\"")
 (cook/shell "mkdir -p \"" module/*syspath* "/mendoza\"")
 (cook/shell "cp -r ./mendoza \"" module/*syspath* "\"")
-(cook/shell "cp -r ./syntax \"" module/*syspath* "/mendoza\"")

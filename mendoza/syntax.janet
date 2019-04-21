@@ -45,7 +45,7 @@
   "Unload all loaded syntax highlighters."
   []
   (loop [name :keys language-highlighters]
-    (put module/cache (string "syntax/" name) nil)
+    (put module/cache (string "mendoza/syntax/" name) nil)
     (put language-highlighters name nil)))
 
 (defn load
@@ -56,5 +56,5 @@
     (do
       # The syntax file should call syntax/add on the grammar.
       (print "Loading syntax " name "...")
-      (require (string "syntax/" name))
+      (require (string "mendoza/syntax/" name))
       (language-highlighters name))))

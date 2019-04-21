@@ -1,5 +1,6 @@
 {:title "Mendoza"
- :template "main"}
+ :template "main"
+ :order 1}
 ---
 
 # Mendoza Overview

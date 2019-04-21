@@ -24,18 +24,20 @@
 
 (defn bigger [content] {:tag "span" "style" "font-size:1.61803398875em;" :content content})
 (defn smaller [content] {:tag "span" "style" "font-size:0.61803398875em;" :content content})
-(defn code [content] {:tag "code" :content content})
+(defn code [content] {:tag "code" "class" "mendoza-code" :content content})
 
 (defn codeblock
   "Inline code or codeblock"
   [lang &opt source]
   (def source2 (or source lang))
   (def lang2 (if source lang nil))
-  {:tag "pre" :content {:tag "code"
-                        :content source2
-                        :no-escape (not (not lang2))
-                        :language lang2
-                        "data-language" lang2}})
+  {:tag "pre" 
+   "class" "mendoza-codeblock"
+   :content {:tag "code"
+             :content source2
+             :no-escape (not (not lang2))
+             :language lang2
+             "data-language" lang2}})
 (defn link
   "Create an anchor link"
   [url content]

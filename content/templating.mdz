@@ -1,5 +1,6 @@
 {:title "Templates"
- :template "main"}
+ :template "main"
+ :order 5}
 ---
 
 # Templates

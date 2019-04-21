@@ -1,7 +1,6 @@
-{
-    :title "Markup Commands"
-    :template "main.html"
-}
+{:title "Markup Commands"
+ :template "main.html"
+ :order 2}
 ---
 # Markup Commands
 

@@ -1,5 +1,6 @@
 {:title "Highlighting"
- :template "main"}
+ :template "main"
+ :order 4}
 ---
 
 # Syntax Highlighting
