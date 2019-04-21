@@ -113,7 +113,10 @@
   # Render all pages
   (loop [page :in pages]
     (def url (page :url))
-    (render-page page url)))
+    (render-page page url)
+    (if-let [permalinks (page :permalinks)]
+      (each link permalinks
+        (render-page page link)))))
 
 (defn watch
   "Watch for files changing, and re-run mendoza when source files

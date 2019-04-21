@@ -21,7 +21,10 @@
   (defn compile-time-chunk
     "Eval the capture straight away during compilation. Use for imports, etc."
     [chunk]
-    (eval-string chunk env)
+    (defn do-in-env [] (eval-string chunk))
+    (def f (fiber/new do-in-env))
+    (fiber/setenv f env)
+    (resume f)
     true)
 
   (defn parse-chunk
