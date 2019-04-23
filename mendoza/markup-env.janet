@@ -8,7 +8,7 @@
 # This defines shorthands for many basic HTML tags,
 # codeblocks, and more.
 
-(each tag ["ul" "ol" "li" "p" "em" "strong" "u" "pre" "sub" "sup"]
+(each tag ["ul" "ol" "li" "p" "em" "strong" "u" "pre" "sub" "sup" "tr" "td" "th"]
   (defglobal tag (fn [content] {:tag tag :content content})))
 
 (defn tag

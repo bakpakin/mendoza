@@ -5,20 +5,22 @@
 
 # Provides syntax highlighting for janet. 
 
-(def default-colors
-  "Default theme colors for syntax highlighting."
-  {:number "#89dc76"
-   :keyword "#ffd866"
-   :string "#ab90f2"
-   :coresym "#ff6188"
-   :constant "#fc9867"
-   :string "#fc9867"
-   :character "red"
-   :identifier "white"
-   :comment "gray"
-   :operator "white"
-   :type "green"
-   :line "gray"})
+(def- syntax-classes
+  "A set of classes for syntax elements. We want to try and unify
+  classes, even between different languages to make highlighting work
+  better."
+  {:number true
+   :keyword true
+   :string true
+   :coresym true
+   :constant true
+   :string true
+   :character true
+   :identifier true
+   :comment true
+   :operator true
+   :type true
+   :line true})
 
 (def- language-highlighters
   "Syntax highlighters for all languages. Grammars
@@ -29,7 +31,7 @@
   "Create a replacer function for a peg grammar that is used to capture
   and color output."
   [class]
-  (if (not (default-colors class))
+  (if (not (syntax-classes class))
     (error (string "invalid class " class))
     (fn [text] [class text])))
 

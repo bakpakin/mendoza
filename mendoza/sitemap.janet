@@ -16,21 +16,19 @@
   [sitemap page frags]
   (var node-parent nil)
   (var node sitemap)
-  (each level (tuple/slice frags 0 -2)
-    (def next-node (or (node level) @{:fragment level :pages @[]}))
+  (def levels (tuple/slice frags 0 -2))
+  (each level levels
+    (def next-node (or (node level) @{:title "/" :url "/" :fragment level :pages @[]}))
     (put node level next-node)
     (set node-parent node)
     (set node next-node))
   (if (and node-parent (= (last frags) "index.html"))
-    (array/push (node-parent :pages) node))
-  (array/push (node :pages) page))
-
-(defn- clean-node
-  [node]
-  (loop [k :keys node :when (string? k)]
-    (put node k nil))
-  (if-let [pages (node :pages)]
-    (each page pages (clean-node page))))
+    (do
+      (set (node :title) (page :title))
+      (set (node :url) (string "/" ;(interpose "/" levels)))
+      (set (node :index) page)
+      (array/push (node-parent :pages) node))
+    (array/push (node :pages) page)))
 
 (defn create
   "Create a new SiteMap from a list of pages."
@@ -42,5 +40,4 @@
     (put page :fragment (last frags))
     (put page :fragments frags)
     (insert-page sitemap page frags))
-  (clean-node sitemap)
   sitemap)

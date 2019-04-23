@@ -27,18 +27,14 @@
 
 (defn- highlight-genhtml
   "Paint syntax highlighting colors for HTML"
-  [buf tokens colors]
+  [buf tokens]
   (each token tokens
     (if (bytes? token)
       (escape token buf html-escape-chars)
-      (let [[class bytes] token
-            color (colors class)]
-        (if color
-          (do
-            (buffer/push-string buf "<span style=\"color:" color "\">")
-            (escape bytes buf html-escape-chars)
-            (buffer/push-string buf "</span>"))
-          (escape bytes buf html-escape-chars))))))
+      (let [[class bytes] token]
+        (buffer/push-string buf "<span class=\"mdzsyn-" class "\">")
+        (escape bytes buf html-escape-chars)
+        (buffer/push-string buf "</span>")))))
 
 (defn render
   "Render a document node into HTML. Returns a buffer."
@@ -63,9 +59,8 @@
         (buffer/push-string buf ">"))
       (if-let [lang (node :language)]
         (let [content (render (node :content) @"" next-state)
-              matches (peg/match (syntax/load lang) content)
-              colors (or (next-state :colors) syntax/default-colors)]
-          (highlight-genhtml buf matches colors))
+              matches (peg/match (syntax/load lang) content)]
+          (highlight-genhtml buf matches))
         (if-let [temp (node :template)]
           ((template/load temp) buf next-state render)
           (render (node :content) buf next-state)))
