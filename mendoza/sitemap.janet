@@ -24,7 +24,7 @@
     (set node next-node))
   (if (and node-parent (= (last frags) "index.html"))
     (do
-      (set (node :title) (page :title))
+      (merge-into node page)
       (set (node :url) (string "/" ;(interpose "/" levels)))
       (set (node :index) page)
       (array/push (node-parent :pages) node))

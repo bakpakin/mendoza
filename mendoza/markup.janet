@@ -85,13 +85,15 @@
     # can still cross line boundaries.
     :char-line (+ (* "\\" 1) (if-not (set "@}\n") 1))
     :leaf-line (/ '(* (some :char-line) (? "\n")) ,(partial string/replace "\\" ""))
-    :root-line (some (+ :node :leaf-line))
+    :root-line (some (+ (* :node (? '"\n")) :leaf-line))
 
     # An @ expression (a node)
     :node {:paren-params (* "(" (any :wsnl) (any (* :janet-value (any :wsnl))) ")")
+           :string-param (* (> 0 "\"") :janet-value)
+           :longstring-param (* (> 0 "`") :janet-value)
            :curly-params (* "{" (/ (any :root) ,array) "}")
            :bracket-params (* "[" '(any (if-not "]" 1)) "]")
-           :params (any (* (any :wsnl) (+ :bracket-params :curly-params :paren-params)))
+           :params (any (* (any :wsnl) (+ :bracket-params :curly-params :paren-params :string-param :longstring-param)))
            :name '(if-not (range "09") (some ,symchars))
            :main (/ (* "@" :name :params) ,capture-node)}
 

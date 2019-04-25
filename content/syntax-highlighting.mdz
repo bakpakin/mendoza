@@ -17,7 +17,9 @@ Syntax highlighting occurs in @code{\@codeblock} blocks. For example, the follow
 
 Produces:
 
-@codeblock[janet](`(def a (+ 1 2))`)
+@codeblock[janet]```
+(def a (+ 1 2))
+```
 
 ## Adding More Grammars
 

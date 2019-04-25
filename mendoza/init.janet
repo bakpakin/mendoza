@@ -55,6 +55,11 @@
         (os/rmdir path))
       (os/rm path))))
 
+(defn- url-prefix
+  "Make sure URL has leading slash."
+  [url]
+  (if (= ("/" 0) (url 0)) url (string "/" url)))
+
 #
 # Main API
 #
@@ -120,7 +125,7 @@
     (render-page page url)
     (if-let [permalinks (page :permalinks)]
       (each link permalinks
-        (render-page page link)))))
+        (render-page page (url-prefix link))))))
 
 (defn watch
   "Watch for files changing, and re-run mendoza when source files
