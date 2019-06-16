@@ -3,6 +3,7 @@
 ### Copyright © Calvin Rose 2019
 ###
 
+(import mendoza/watch-cache :as wc)
 (def- base-env (require "mendoza/template-env"))
 (table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
@@ -72,7 +73,7 @@
     :error (error (parser/error p)))
 
   # Make ast from forms
-  (def ast ~(fn _template [,bufsym state render]
+  (def ast ~(fn _mendoza-template [,bufsym state render]
               # Add important bindings to make templating easier.
               # Also helps catching template errors.
               (def pages (state :pages))
@@ -93,30 +94,18 @@
       :error (error res)
       res)))
 
-(def- loaded-templates @{})
+#
+# Module loading
+#
 
-(defn- norm-name
-  [name]
-  (if (string/find ".html" name)
-    name
-    (string name ".html")))
-
-(defn load
-  "Require a template. A template can either be an HTML template, or
-  a janet source file that is loaded in the normal manner."
-  [name]
-  (def name (norm-name name))
-  (if-let [ret (loaded-templates name)]
-    ret
-    (let [path (string "templates/" name)
-          _ (print "Requiring " path " as bar template...")
-          source (slurp path)
-          t (template source path)]
-      (put loaded-templates name t)
-      t)))
-
-(defn unload
-  "Unload all loaded templates"
+(defn add-loader
+  "Adds the custom template loader to Janet's module/loaders."
   []
-  (loop [name :keys loaded-templates]
-    (put loaded-templates (norm-name name) nil)))
+  (put module/loaders :mendoza-template (fn [x &] 
+                                          (def mod (template (slurp x) x))
+                                          (put wc/cache mod true)
+                                          mod))
+  (array/insert module/paths 0 [":all:" :mendoza-template ".html"])
+  (array/insert module/paths 1 [":all:.html" :mendoza-template])
+  (array/insert module/paths 2 ["./templates/:all:" :mendoza-template ".html"])
+  (array/insert module/paths 3 ["./templates/:all:.html" :mendoza-template]))

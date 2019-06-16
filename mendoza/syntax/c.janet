@@ -10,7 +10,7 @@
 (defn word-set
   "Create a set of words to match, and return it as a grammar"
   [& words]
-  (def with-ws (map (fn [w] ~(* ',w (not :symchar))) words))
+  (def with-ws (map (fn [w] ~(* ',w (> 0 (not :symchar)))) words))
   ~(+ ,;with-ws))
 
 (def preproc-words

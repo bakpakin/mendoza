@@ -3,6 +3,7 @@
 ### Copyright © Calvin Rose 2019
 ###
 
+(import mendoza/watch-cache :as wc)
 (def- base-env (require "mendoza/markup-env"))
 (table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
@@ -143,3 +144,19 @@
   (case (fiber/status f)
     :error (error res)
     res))
+
+#
+# Module loading
+#
+
+(defn add-loader
+  "Adds the custom markup loader to Janet's module/loaders."
+  []
+  (put module/loaders :mendoza-markup (fn [x &] 
+                                        (def mod (markup (slurp x)))
+                                        (put wc/cache mod true)
+                                        mod))
+  (array/insert module/paths 0 [":all:" :mendoza-markup ".mdz"])
+  (array/insert module/paths 1 [":all:.mdz" :mendoza-markup])
+  (array/insert module/paths 2 ["./content/:all:" :mendoza-markup ".mdz"])
+  (array/insert module/paths 3 ["./content/:all:/mdz" :mendoza-markup]))

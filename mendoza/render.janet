@@ -62,7 +62,7 @@
               matches (peg/match (syntax/load lang) content)]
           (highlight-genhtml buf matches))
         (if-let [temp (node :template)]
-          ((template/load temp) buf next-state render)
+          ((require temp) buf next-state render)
           (render (node :content) buf next-state)))
       (when (and tag (not (node :no-close)))
         (buffer/push-string buf "</" tag ">")))

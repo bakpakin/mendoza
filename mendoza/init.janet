@@ -3,13 +3,20 @@
 ### Copyright © Calvin Rose 2019
 ###
 
-(def version "0.0.0")
+(def version "0.0.1")
 
 (import mendoza/markup :as markup)
 (import mendoza/render :as render)
 (import mendoza/syntax :as syntax)
 (import mendoza/template :as template)
 (import mendoza/sitemap :as sitemap)
+
+#
+# Add loaders
+#
+
+(template/add-loader)
+(markup/add-loader)
 
 #
 # File System Helpers
@@ -69,8 +76,6 @@
   []
   (print "Removing directory site...")
   (rimraf "site")
-  (print "Unloading templates...")
-  (template/unload)
   (print "Unloading syntaxes...")
   (syntax/unload))
 
@@ -100,7 +105,7 @@
                    (read-pages (string path "/" f)))
       :file (when (= ".mdz" (string/slice path -5))
               (print "Parsing content " path " as mendoza markup")
-              (def page (markup/markup (slurp path)))
+              (def page (require path))
               (put page :input path)
               (put page :url (page-get-url page))
               (array/push pages page))))

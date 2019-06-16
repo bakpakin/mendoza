@@ -1,8 +1,7 @@
 {:title "Highlighting"
- :template "main"
+ :template "main.html"
  :order 4}
 ---
-
 # Syntax Highlighting
 
 Mendoza supports syntax highlighting for a few languages

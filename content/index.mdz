@@ -1,8 +1,7 @@
 {:title "Mendoza"
- :template "main"
+ :template "main.html"
  :order 1}
 ---
-
 # Mendoza Overview
 
 Mendoza was created to eventually be of use in the website for
