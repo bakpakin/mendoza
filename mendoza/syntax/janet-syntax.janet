@@ -1,5 +1,5 @@
 ###
-### syntax/janet.janet
+### syntax/janet-syn.janet
 ### Copyright © 2019 Calvin Rose
 ###
 
@@ -63,5 +63,3 @@
     :barray (* '"@" :btuple)
     :dict (* '"@"  :struct)
     :main (+ :root (error ""))})
-
-(syntax/add "janet" grammar)

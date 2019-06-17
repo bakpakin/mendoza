@@ -59,7 +59,7 @@
         (buffer/push-string buf ">"))
       (if-let [lang (node :language)]
         (let [content (render (node :content) @"" next-state)
-              matches (peg/match (syntax/load lang) content)]
+              matches (peg/match (require (string lang "-syntax.janet")) content)]
           (highlight-genhtml buf matches))
         (if-let [temp (node :template)]
           ((require temp) buf next-state render)

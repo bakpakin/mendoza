@@ -16,6 +16,7 @@
 # Add loaders
 #
 
+(syntax/add-loader)
 (template/add-loader)
 (markup/add-loader)
 
@@ -77,8 +78,7 @@
   []
   (print "Removing directory site...")
   (rimraf "site")
-  (print "Unloading syntaxes...")
-  (syntax/unload)
+  (print "Unloading cached modules...")
   (watch-cache/clean))
 
 (defn serve
@@ -142,7 +142,7 @@
 
   # Check which directories exist
   (def watched-dirs @"")
-  (each path ["static" "templates" "syntax" "content"]
+  (each path ["static" "templates" "syntax" "mendoza/syntax" "content"]
     (if (os/stat path :mode)
       (buffer/push-string watched-dirs path " ")))
 
@@ -159,9 +159,9 @@
   (def proc (file/popen cmd :r))
   (if (not proc) (error "could not run " (describe cmd)))
   (while true
-    (print "waiting...")
+    (print "Waiting...")
     (def x (:read proc :line))
     (if (or (not x) (empty? x)) (break))
-    (print "event: " x)
+    (print "Event: " x)
     (rebuild))
   (file/close proc))

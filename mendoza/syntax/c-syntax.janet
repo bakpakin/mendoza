@@ -1,5 +1,5 @@
 ###
-### syntax/c.janet
+### syntax/c-syn.janet
 ### Copyright © 2019 Calvin Rose
 ###
 
@@ -15,7 +15,7 @@
 
 (def preproc-words
   (word-set
-    "define" "elif" "else" "endif" "error" "if" "ifdef" "ifndefr" "line"
+    "define" "elif" "else" "endif" "error" "if" "ifdef" "ifndef" "line"
     "pragma" "undef" "warning"))
 
 (def storage-class
@@ -49,6 +49,7 @@
     "NULL" "__DATE__" "__FILE__" "__LINE__" "__TIME__"))
 
 (def grammar
+  "Main grammar."
   ~{:ws (set " \v\t\r\f\n\0")
     :wsline (set " \v\t\r\f\0")
     :symchar (range "az" "AZ" "09" "__")
@@ -90,5 +91,3 @@
              -1
              (error ""))
     :main (any :root)})
-
-(syntax/add "c" grammar)

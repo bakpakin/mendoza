@@ -6,7 +6,7 @@
 
 Mendoza supports syntax highlighting for a few languages
 built it, and also has a simple mechanism for adding more
-languages. Built in grammars include @link["https://janet-lang.org"]{Janet}, C, and HTML.
+languages. Built in grammars include @link[https://janet-lang.org]{Janet}, C, and HTML.
 
 ## Simple Example
 

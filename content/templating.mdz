@@ -13,7 +13,8 @@ in the @code{templates/} directory of your site source.
 
 The simplest template is just a plain HTML file.
 
-@codeblock[html](```<!doctype html>
+@codeblock[html]```
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -22,4 +23,4 @@ The simplest template is just a plain HTML file.
     <h1>Hello, world!</h1>
   </body>
 </html>
-```)
+```

@@ -102,9 +102,7 @@
   "Adds the custom template loader to Janet's module/loaders."
   []
   (put module/loaders :mendoza-template (fn [x &] 
-                                          (def mod (template (slurp x) x))
-                                          (put wc/cache mod true)
-                                          mod))
+                                          (wc/add (template (slurp x) x))))
   (array/insert module/paths 0 [":all:" :mendoza-template ".html"])
   (array/insert module/paths 1 [":all:.html" :mendoza-template])
   (array/insert module/paths 2 ["./templates/:all:" :mendoza-template ".html"])

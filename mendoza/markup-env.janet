@@ -20,7 +20,7 @@
 (defn hr
   "Add a horizontal rule"
   []
-  {:no-escape "true" :content "<hr>"})
+  {:no-escape true :content "<hr>"})
 
 (defn bigger [content] {:tag "span" "style" "font-size:1.61803398875em;" :content content})
 (defn smaller [content] {:tag "span" "style" "font-size:0.61803398875em;" :content content})

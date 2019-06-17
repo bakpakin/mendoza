@@ -1,5 +1,5 @@
 ###
-### syntax/html.janet
+### syntax/html-syn.janet
 ### Copyright © 2019 Calvin Rose
 ###
 
@@ -36,5 +36,3 @@
                                       " at byte " p))))
     :root (any (+ :normal-text :html-escape :singleton :tag :comment :openclose))
     :main (* ':ws (? :prefix) :root (+ -1 :err))})
-
-(syntax/add "html" grammar)

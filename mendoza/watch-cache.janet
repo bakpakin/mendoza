@@ -7,13 +7,18 @@
 # and imported modules. This is used for mendoza's watch
 # functionality.
 
-(def cache @{})
+(var cache @{})
+
+(defn add
+  "Add something to the cache."
+  [x]
+  (put cache x true)
+  x)
 
 (defn clean
   "Unload all modules that have their value in the cache."
   []
-  (print "Unloading watch cache...")
-  (loop [[k v] :pairs module/cache
-         :when (cache v)]
-    (put module/cache k nil))
-  (loop [k :keys cache] (put cache k nil)))
+  (loop [[k v] :in (pairs module/cache)]
+    (if (cache v)
+      (put module/cache k nil)))
+  (set cache @{}))

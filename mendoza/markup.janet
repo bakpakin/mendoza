@@ -153,10 +153,8 @@
   "Adds the custom markup loader to Janet's module/loaders."
   []
   (put module/loaders :mendoza-markup (fn [x &] 
-                                        (def mod (markup (slurp x)))
-                                        (put wc/cache mod true)
-                                        mod))
+                                        (wc/add (markup (slurp x)))))
   (array/insert module/paths 0 [":all:" :mendoza-markup ".mdz"])
   (array/insert module/paths 1 [":all:.mdz" :mendoza-markup])
   (array/insert module/paths 2 ["./content/:all:" :mendoza-markup ".mdz"])
-  (array/insert module/paths 3 ["./content/:all:/mdz" :mendoza-markup]))
+  (array/insert module/paths 3 ["./content/:all:.mdz" :mendoza-markup]))

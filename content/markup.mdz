@@ -20,14 +20,14 @@ into the root node of the final document tree.
 
 Example:
 
-@codeblock[janet](
+@codeblock[janet]
 ```{:title "My Blog Post"
  :description "Mendoza is a new static site generator!"
  :template "main.html"}
 # End of front matter
 ---
 # Markup here...
-```)
+```
 
 ## Basic Syntax
 
