@@ -9,9 +9,10 @@
 
 (def cache @{})
 
-(defn clean-modules
+(defn clean
   "Unload all modules that have their value in the cache."
   []
+  (print "Unloading watch cache...")
   (loop [[k v] :pairs module/cache
          :when (cache v)]
     (put module/cache k nil))

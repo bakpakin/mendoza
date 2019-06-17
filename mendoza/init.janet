@@ -10,6 +10,7 @@
 (import mendoza/syntax :as syntax)
 (import mendoza/template :as template)
 (import mendoza/sitemap :as sitemap)
+(import mendoza/watch-cache :as watch-cache)
 
 #
 # Add loaders
@@ -77,7 +78,8 @@
   (print "Removing directory site...")
   (rimraf "site")
   (print "Unloading syntaxes...")
-  (syntax/unload))
+  (syntax/unload)
+  (watch-cache/clean))
 
 (defn serve
   "Serve the site locally."
