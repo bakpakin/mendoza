@@ -5,7 +5,7 @@
 # Mendoza Overview
 
 Mendoza was created to eventually be of use in the website for
-the Janet language - in this regard, it is aimed to be a tool
+the Janet language - in this regard, its aim is to be a tool
 for authoring handwritten documentation files, but flexible enough
 for other static uses like a blog, slideshow, or personal website
 (things I would like to use mendoza for). However, much of this
@@ -34,8 +34,7 @@ Mendoza is designed with different goals in mind than what the creators
 of markdown had. It shares some goals with LaTeX as well, but it is not
 intended for typesetting, only authoring HTML documentation.
 
-@ul{
-    @li{Mendoza markup has less syntax than markup (excluding janet syntax), and
+@ul{@li{Mendoza markup has less syntax than markup (excluding janet syntax), and
         instead relies on functions to extend it's functionality.}
     @li{Mendoza markup is more flexible than Markdown and can express all valid HTML
         documents. Users can defined their own forms, which can operate on either Janet
@@ -50,5 +49,4 @@ intended for typesetting, only authoring HTML documentation.
         templates to author documents.}
     @li{Mendoza markup contains front-matter, which is document-local meta data which can
         be used by the templating system. While standard markdown does not have front matter, many
-        templating systems use Markdown with front matter for metadata.}
-}
+        templating systems use Markdown with front matter for metadata.}}

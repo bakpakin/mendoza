@@ -7,7 +7,7 @@
 # and imported modules. This is used for mendoza's watch
 # functionality.
 
-(var cache @{})
+(var cache :private @{})
 
 (defn add
   "Add something to the cache."

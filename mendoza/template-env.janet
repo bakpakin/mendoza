@@ -26,7 +26,7 @@
     (pred root)
     root
     (dictionary? root)
-    (dom-find (root :content))
+    (dom-find pred (root :content))
     (indexed? root)
     (find-each x root (dom-find pred x))))
 
@@ -42,4 +42,4 @@
 (defn find-section
   "Find a given section name to insert into the document."
   [name root]
-  (dom-find (fn [x] (= (x "name") name)) root))
+  (dom-find (fn [x] (and (dictionary? x) (= (x "name") name))) root))
