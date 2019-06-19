@@ -3,8 +3,8 @@
 ### Copyright © Calvin Rose 2019
 ###
 
-(import mendoza/template :as template)
-(import mendoza/syntax :as syntax)
+(import ./template :as template)
+(import ./syntax :as syntax)
 
 (def- html-escape-chars
   "Characters to escape for HTML"
@@ -59,7 +59,7 @@
         (buffer/push-string buf ">"))
       (if-let [lang (node :language)]
         (let [content (render (node :content) @"" next-state)
-              matches (peg/match (require (string lang "-syntax.janet")) content)]
+              matches (peg/match (require (string lang ".syntax")) content)]
           (highlight-genhtml buf matches))
         (if-let [temp (node :template)
                  fulltemp (if (string/has-suffix? ".html" temp)

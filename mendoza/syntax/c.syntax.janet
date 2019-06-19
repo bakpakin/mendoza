@@ -5,7 +5,7 @@
 
 # A mendoza syntax for highlighting C
 
-(import mendoza/syntax :as syntax)
+(import ../syntax :as syntax)
 
 (defn word-set
   "Create a set of words to match, and return it as a grammar"

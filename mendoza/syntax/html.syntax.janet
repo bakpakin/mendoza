@@ -5,7 +5,7 @@
 
 # A mendoza syntax for highlighting HTML
 
-(import mendoza/syntax :as syntax)
+(import ../syntax :as syntax)
 
 (def grammar
   ~{:ws (any (set " \t\r\n\v"))

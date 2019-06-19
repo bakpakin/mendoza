@@ -3,8 +3,8 @@
 ### Copyright © Calvin Rose 2019
 ###
 
-(import mendoza/watch-cache :as wc)
-(def- base-env (require "mendoza/markup-env"))
+(import ./watch-cache :as wc)
+(def- base-env (require "./markup-env"))
 (table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
 (defn- capture-front
@@ -138,12 +138,9 @@
       (merge matter
              {:content (seq [ast :in (tuple/slice matches 1)]
                             (eval ast))}))
-  (def f (fiber/new do-contents :e))
+  (def f (fiber/new do-contents :))
   (fiber/setenv f env)
-  (def res (resume f))
-  (case (fiber/status f)
-    :error (error res)
-    res))
+  (resume f))
 
 #
 # Module loading

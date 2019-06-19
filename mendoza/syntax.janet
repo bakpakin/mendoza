@@ -7,7 +7,7 @@
 # for Janet. The majority of the logic is in
 # the pegs themselves.
 
-(import mendoza/watch-cache :as wc)
+(import ./watch-cache :as wc)
 
 (def- syntax-classes
   "A set of classes for syntax elements. We want to try and unify
@@ -38,21 +38,23 @@
 # Module loading
 #
 
+(def- syntax-dir (module/expand-path "" ":cur:/syntax"))
+(def- suffix ".syntax")
 (defn add-loader
   "Adds the custom syntax loader to Janet's module/loaders."
   []
-  (put module/loaders :mendoza-syntax (fn [x args] 
-                                        (print "Loading syntax " x)
-                                        (def env ((module/loaders :source) x args))
-                                        (def grammar ((env 'grammar) :value))
-                                        (unless grammar
-                                          (error "module needs to export 'grammar symbol"))
-                                        (def peg (if (= :core/peg (type grammar))
-                                                   grammar
-                                                   (peg/compile grammar)))
-                                        (wc/add peg)))
-  (def suffix "-syntax.janet")
-  (array/insert module/paths 0 [":sys:/mendoza/syntax/:all:" :mendoza-syntax suffix])
-  (array/insert module/paths 1 ["./mendoza/syntax/:all:" :mendoza-syntax suffix])
-  (array/insert module/paths 2 ["./syntax/:all:" :mendoza-syntax suffix])
-  (array/insert module/paths 3 [":all:" :mendoza-syntax suffix]))
+  (defn loader [x args] 
+    (print "Loading syntax " x)
+    (def env ((module/loaders :source) x args))
+    (def grammar ((env 'grammar) :value))
+    (unless grammar
+      (error "module needs to export 'grammar symbol"))
+    (def peg (if (= :core/peg (type grammar))
+               grammar
+               (peg/compile grammar)))
+    (wc/add peg))
+  (put module/loaders :mendoza-syntax loader)
+  (array/push
+    module/paths
+    [(string syntax-dir "/:all:.janet") :mendoza-syntax suffix]
+    ["./syntax/:all:.janet" :mendoza-syntax suffix]))

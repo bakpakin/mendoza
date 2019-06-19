@@ -5,12 +5,12 @@
 
 (def version "0.0.1")
 
-(import mendoza/markup :as markup)
-(import mendoza/render :as render)
-(import mendoza/syntax :as syntax)
-(import mendoza/template :as template)
-(import mendoza/sitemap :as sitemap)
-(import mendoza/watch-cache :as watch-cache)
+(import ./markup :as markup)
+(import ./render :as render)
+(import ./syntax :as syntax)
+(import ./template :as template)
+(import ./sitemap :as sitemap)
+(import ./watch-cache :as watch-cache)
 
 #
 # Add loaders

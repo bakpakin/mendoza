@@ -5,7 +5,7 @@
 
 # A mendoza syntax for highlighting janet source code.
 
-(import mendoza/syntax :as syntax)
+(import ../syntax :as syntax)
 
 (def- core-env (table/getproto (fiber/getenv (fiber/current))))
 (def- specials {'fn true

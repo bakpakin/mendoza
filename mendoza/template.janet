@@ -3,8 +3,8 @@
 ### Copyright © Calvin Rose 2019
 ###
 
-(import mendoza/watch-cache :as wc)
-(def- base-env (require "mendoza/template-env"))
+(import ./watch-cache :as wc)
+(def- base-env (require "./template-env"))
 (table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
 (defn- template
