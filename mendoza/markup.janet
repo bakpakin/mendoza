@@ -155,6 +155,4 @@
   (put module/loaders :mendoza-markup (fn [x &] 
                                         (wc/add (markup (slurp x)))))
   (array/insert module/paths 0 [":all:" :mendoza-markup ".mdz"])
-  (array/insert module/paths 1 [":all:.mdz" :mendoza-markup])
-  (array/insert module/paths 2 ["./content/:all:" :mendoza-markup ".mdz"])
-  (array/insert module/paths 3 ["./content/:all:.mdz" :mendoza-markup]))
+  (array/insert module/paths 1 ["./content/:all:" :mendoza-markup ".mdz"]))

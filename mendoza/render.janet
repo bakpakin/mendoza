@@ -61,8 +61,11 @@
         (let [content (render (node :content) @"" next-state)
               matches (peg/match (require (string lang "-syntax.janet")) content)]
           (highlight-genhtml buf matches))
-        (if-let [temp (node :template)]
-          ((require temp) buf next-state render)
+        (if-let [temp (node :template)
+                 fulltemp (if (string/has-suffix? ".html" temp)
+                            temp
+                            (string temp ".html"))]
+          ((require fulltemp) buf next-state render)
           (render (node :content) buf next-state)))
       (when (and tag (not (node :no-close)))
         (buffer/push-string buf "</" tag ">")))

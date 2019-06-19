@@ -103,7 +103,6 @@
   []
   (put module/loaders :mendoza-template (fn [x &] 
                                           (wc/add (template (slurp x) x))))
-  (array/insert module/paths 0 [":all:" :mendoza-template ".html"])
-  (array/insert module/paths 1 [":all:.html" :mendoza-template])
-  (array/insert module/paths 2 ["./templates/:all:" :mendoza-template ".html"])
-  (array/insert module/paths 3 ["./templates/:all:.html" :mendoza-template]))
+  (array/insert module/paths 0 ["./templates/:all:" :mendoza-template ".html"])
+  (array/insert module/paths 1 ["./mendoza/templates/:all:" :mendoza-template ".html"])
+  (array/insert module/paths 2 [":sys:/mendoza/templates/:all:" :mendoza-template ".html"]))
