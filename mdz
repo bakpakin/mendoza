@@ -2,6 +2,13 @@
 
 (import mendoza :as mdz)
 
+(mdz/init)
+
+(def args
+  (if-let [e (dyn 'process/args)]
+    (array/slice (e :value) 0 1)
+    (dyn :args)))
+
 (def usage
   "Script usage."
 ``` [action]
@@ -16,14 +23,14 @@
 ```)
 
 (var action "build")
-(if (>= (length process/args) 3)
-  (set action (process/args 2)))
+(if (>= (length args) 2)
+  (set action (args 1)))
 
 # Do actions
 (case action
-  "help" (print (process/args 1) usage)
+  "help" (print (args 0) usage)
   "version" (print mdz/version)
   "clean" (mdz/clean)
-  "serve" (mdz/serve (if (> (length process/args) 3) (process/args 3)))
+  "serve" (mdz/serve (if (> (length args) 2) (args 2)))
   "watch" (mdz/watch)
   "build" (mdz/build))

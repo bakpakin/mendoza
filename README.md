@@ -40,9 +40,9 @@ repository.
 
 ### Global Installation
 
-Run the `./install` script to install janet on to your machine. This will
-only work on Linux/Posix for now. The `mdz` executable will now be on your path, so
-you can run commands such as `mdz build` to generate your site in any directory.
+Run `[sudo] jpm install` script to install janet on to your machine. The `mdz`
+executable will now be on your path, so you can run commands such as `mdz
+build` to generate your site in any directory.
 
 ### From within this repository
 

@@ -16,9 +16,13 @@
 # Add loaders
 #
 
-(syntax/add-loader)
-(template/add-loader)
-(markup/add-loader)
+(defn init
+  "Add loaders to environment. Call this before running
+  any commands."
+  []
+  (syntax/add-loader)
+  (template/add-loader)
+  (markup/add-loader))
 
 #
 # File System Helpers
