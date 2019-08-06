@@ -1,5 +1,8 @@
 #!/usr/bin/env janet
 
+# Increase interval so GC doesn't slow down program as much.
+(gcsetinterval 0x7FFFFF)
+
 (import mendoza :as mdz)
 
 (mdz/init)
@@ -25,6 +28,8 @@
 (var action "build")
 (if (>= (length args) 2)
   (set action (args 1)))
+
+(gccollect)
 
 # Do actions
 (case action
