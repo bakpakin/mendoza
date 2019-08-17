@@ -9,15 +9,11 @@ are then rendered to HTML after going through custom transformations.
 
 ## Why?
 
-Mendoza was created to eventually be of use in the website for
-the Janet language - in this regard, it is aimed to be both a tool
-for authoring handwritten documentation files, but flexible enough
-for other static uses like a blog, slideshow, or personal website
-(things I would like to use mendoza for). However, much of this
-functionality should be plugged into Mendoza externally. The core
-of Mendoza should be fairly simple and dumb, at least in comparison
-to similar tools. It should only take a single content file to get
-a working site out of the box.
+Mendoza is a tool for authoring content to produce high qulity static
+HTML websites. It uses the Janet programming language and a derived
+markup language to make authoring content fast but flexible. It aims
+to be easy to set up straight out of the box with Janet, and used for
+authoring documentation for the Janet website.
 
 ## Features
 
@@ -25,7 +21,7 @@ a working site out of the box.
 * Syntax Highlighting
 * Extensible with the Janet language - use Janet functions from within markup
 * `./mdz watch` - File watching with `inotifywait`
-* `./mdz serve` - Serve built static files
+* `./mdz serve` - Serve built static files with circlet
 * HTML templating features built in
 * No need for a configuration file
 * Arbitrary static files
@@ -35,20 +31,18 @@ a working site out of the box.
 First, make sure you have Janet installed. See
 [the Janet docs](https://janet-lang.org/introduction.html) for
 more information on this. Use the latest version from git, please.
-Once you have installed all of the requirements, clone this
-repository.
 
 ### Global Installation
 
-Run `[sudo] jpm install` script to install janet on to your machine. The `mdz`
+Run `[sudo] jpm install https://github.com/bakpakin/mendoza.git` script to install on to your machine. The `mdz`
 executable will now be on your path, so you can run commands such as `mdz
 build` to generate your site in any directory.
 
 ### From within this repository
 
-You can also clone this repository and modify it directly to generate
-your site. This makes it much easier to hack on the source itself
-and extend the language. This also works on all platforms that Mendoza supports.
+If you want to develop mendoza itself, you need to clone this repository and
+then run `[sudo] jpm deps` to install circlet, which mendoza uses to serve
+files statically. In this case, use the `./mdz` script to run mendoza.
 
 ## License
 

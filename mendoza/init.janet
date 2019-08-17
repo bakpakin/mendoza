@@ -12,6 +12,9 @@
 (import ./sitemap :as sitemap)
 (import ./watch-cache :as watch-cache)
 
+# For serving local files
+(import circlet)
+
 #
 # Add loaders
 #
@@ -87,9 +90,15 @@
 
 (defn serve
   "Serve the site locally."
-  [&opt port]
-  (default port "8000")
-  (os/shell (string "cd site; python3 -m http.server " port)))
+  [&opt port host]
+  (default port 8000)
+  (circlet/server
+    (->
+      {:default {:kind :static
+                 :root "site"}}
+      circlet/router
+      circlet/logger)
+    port host))
 
 (defn build
   "Build the static site and put it in the output folder."
