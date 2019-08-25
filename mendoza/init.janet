@@ -92,6 +92,7 @@
   "Serve the site locally."
   [&opt port host]
   (default port 8000)
+  (default host "127.0.0.1")
   (circlet/server
     (->
       {:default {:kind :static

@@ -84,8 +84,8 @@
 
     # A span or markup that is line delimited (headers, etc). @ expressions
     # can still cross line boundaries.
-    :char-line (+ (* "\\" 1) (if-not (set "@}\n") 1))
-    :leaf-line (/ '(* (some :char-line) (? "\n")) ,(partial string/replace "\\" ""))
+    :char-line (+ (* "\\" 1) (if-not (set "@}\n\r") 1))
+    :leaf-line (/ '(* (some :char-line) (? "\r") (? "\n")) ,(partial string/replace "\\" ""))
     :root-line (some (+ (* :node (? '"\n")) :leaf-line))
 
     # An @ expression (a node)
