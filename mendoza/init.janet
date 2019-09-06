@@ -93,13 +93,14 @@
   [&opt port host]
   (default port 8000)
   (default host "127.0.0.1")
-  (circlet/server
-    (->
-      {:default {:kind :static
-                 :root "site"}}
-      circlet/router
-      circlet/logger)
-    port host))
+  (let [port ((if (string? port) scan-number identity) port)]
+    (circlet/server
+     (->
+       {:default {:kind :static
+                  :root "site"}}
+       circlet/router
+       circlet/logger)
+     port host)))
 
 (defn build
   "Build the static site and put it in the output folder."

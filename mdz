@@ -20,7 +20,9 @@
     help               - Print this usage information
     build              - Create the static site in the 'site' directory
     clean              - Destory the static site directory
-    serve [port=8000]  - Serves current site. Uses python3 to serve.
+    serve              - Serves current site. Uses circlet to serve.
+     [port=8000]       -- optional port
+     [host=127.0.0.1]  -- optional host
     watch              - Watch files and rebuild if any change.
     version            - Print the mendoza version
 ```)
