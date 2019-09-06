@@ -93,7 +93,7 @@
   [&opt port host]
   (default port 8000)
   (default host "127.0.0.1")
-  (let [port (scan-number port)]
+  (let [port ((if (string? port) scan-number identity) port)]
     (circlet/server
      (->
        {:default {:kind :static
