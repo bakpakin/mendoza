@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{ {:template "blueblog/head.html"} }}
+    <title>{{ (state :title) }}</title>
+  </head>
+  <body>
+    <div class="nice-back">
+      <div class="content-wrapper">
+        <div class="heading">
+          {% (loop [p :in pages :when (p :topbar)] %}
+          <span class="{{ (if (= url (p :url)) "head-main" "head-span") }}">
+            <a href="{{ (p :url) }}">{{ (p :title) }}</a>
+          </span>
+          {% ) %}
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="content-wrapper">
+      <div class="inner-wrapper">
+        {{ content }}
+      </div>
+    </div>
+    <div class="pre-footer">
+      <hr>
+    </div>
+    <footer>
+      Copyright &copy; {{ (get state :author "") }} {{ ((os/date) :year) }}
+    </footer>
+  </body>
+</html>

@@ -40,8 +40,8 @@
              "data-language" lang2}})
 (defn link
   "Create an anchor link"
-  [url content]
-  {:tag "a" "href" url :content content})
+  [url &opt content]
+  {:tag "a" "href" url :content (or content url)})
 
 (defn section
   "Create a section. Usually used to embed different parts of the content

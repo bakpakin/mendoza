@@ -1,5 +1,7 @@
 {:title "Markup"
- :template "main.html"
+ :template "blueblog/main.html"
+ :author "Calvin Rose"
+ :topbar true
  :order 3}
 ---
 # Mendoza Markup
@@ -50,3 +52,43 @@ by the header title.
 For all other markup, Mendoza requires the use of macros. Headers and paragraphs
 can be specified with macros as well, but there is direct syntactic support for
 these because they are so common.
+
+Macros correspond to Janet functions, which will evaluate the arguments and
+return a DOM node to be inserted into the document. You can call normal Janet
+functions in the code, as well other functions defined in the macro
+environment. Macro calls begin with a @code`@` character, followed by the name
+of the macro.
+
+For example:
+
+@codeblock```
+This is some @green-thing text
+```
+
+In this case @code`@green-thing` is not a real macro, but if it were, the value of @code`(green-thing)` from Janet would be spliced into the DOM.
+
+We can also pass arguments to macros in several ways.
+
+@ul{@li{Raw janet arguments: @code`@green-thing(1 true nil)` will be transformed to @code`(green-thing 1 true nil)`}
+    @li{Raw string: @code`@green-thing[1 true nil]` will be transformed to @code`(green-thing "1 true nil")`}
+    @li{Sub document: @code`@green-thing{More stuff @bold[here]}` will be transformed to @code`(green-thing ["More stuff " {:tag "bold" :content "here"}])` \(or something similar).}
+    @li{Some other ways to pass raw strings: @code"@mymac`a string`", @code`@mymac"a string"`}}
+
+You can also put different kinds of arguments together for expresive macros. For example, the
+@code`@codeblock` macro can be used with this technique to great effect.
+
+@codeblock````
+@codeblock[janet]```
+(+ 1 2 3)
+```
+````
+
+The codeblock macro takes two string arguments, where the first specifies the
+language to use for highlighting, and the second is the code to format, which
+is given as a Janet multi-line backtick string. You could also write
+
+@codeblock```
+@codeblock[janet][(+ 1 2 3)]
+```
+
+as both forms pass two strings to the codeblock macro.

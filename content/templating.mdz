@@ -1,5 +1,7 @@
 {:title "Templates"
- :template "main.html"
+ :template "blueblog/main.html"
+ :author "Calvin Rose"
+ :topbar true
  :order 5}
 ---
 # Templates
@@ -8,6 +10,19 @@ Mendoza has a simple templating system for easily wrapping
 your content in boilerplate HTML tags. Templates are the easiest
 way to customize the structure of your website. Templates live
 in the @code{templates/} directory of your site source.
+
+## Using templates
+
+To use a template, you need to add the @code`:template` key to the front-matter of
+your markup file. You can place your own templates in the @code`templates/` directory
+of your project, and then reference them by their path.
+
+@codeblock```
+{:title "My Blog Post"
+ :template "my-template.html"}
+---
+Hello, blog!
+```
 
 ## A Simple Template
 
@@ -24,3 +39,108 @@ The simplest template is just a plain HTML file.
   </body>
 </html>
 ```
+
+## Code in Templates
+
+The main benefit of templates is the ability to embed both Janet code and other
+templates inside ypur pages. The template syntax has three ways to include Janet
+expressions in the generated html (or any other kind of text file!). The body of
+your content markup will be exposed in the template as the @code`content` binding.
+
+### @code`{{ node }}`
+
+Use of double curly braces in a template substitutes a node of the document graph in the final output.
+@code`node` must be a Janet expression that will be rendered and spliced into the output file. @code`node`
+will usually be either a string or a nested table, representing a DOM node that will be rendered by @code`mendoza/render`.
+You can also include other templates with the @code`:template` key in the node.
+
+@codeblock[html]```
+<!doctype html>
+<html>
+  <head>
+    {{ {:template "mytemplate/head.html"} }}
+  </head>
+  <body>
+    {{ content }}
+  </body>
+  <footer>
+    {{ {:template "mytemplate/footer.html} }}
+  </footer>
+</html>
+```
+
+### @code`{% raw-janet %}`
+
+It is often useful to be able to create loops or other logic inside a template to generate lists, tables, and
+other data. This syntax lets you splice Janet code into the template, so is very powerful when paired with Janet's
+looping constructs like @code`for`, @code`each`, @code`loop`, and @code`while`. Code inside these delimiters will
+be executed every time the template runs.
+
+@codeblock[html]```
+<!doctype html>
+<html>
+  <body>
+    <ul>
+      {% (for i 0 100 %}
+        <li>Item {{ i }}</li>
+      {% ) %}
+    </ul>
+  </body>
+</html>
+```
+
+When inserting HTML inside janet forms like above, the HTML will be appended to
+the final output each time the body of that form is run. This means that
+although the @code`for` macro in Janet evaluates to nil, 100 items will still
+be added to output document.
+
+### @code`{$ janet $}`
+
+Dollar braces are similar to percent braces, but will only run once, when the
+template is compiled. You can use the delimiters to import Janet modules or
+define helper functions for your template. The results of items here will not
+be included in the output html.
+
+@codeblock[html]```
+{$ (import json) $}
+<!doctype html>
+<html>
+  <body>
+      <pre>
+        {{ (janet/encode (range 100)) }}
+      </pre>
+  </body>
+</html>
+```
+
+## State from the front-matter
+
+Almost all templates will want to use parameters passed down from
+the content file, such as a title, author, description, post date, etc.
+Such data can be added to the front-matter of the @code`.mdz` files, and
+the templates can pick it up via the @code`state` binding of the template.
+You can put any arbitrary key value pair in the front-matter. If a template is
+nested, state from the parent template is also available in the @code`state` binding.
+
+@codeblock[html]```
+<!doctype html>
+<html>
+  <head>
+    <title>{{ (state :title) }}</title>
+  </head>
+  <body>
+    {{ content }}
+  </body>
+  <footer>
+    Copyright &copy; {{ (state :author) }} 2019
+  </footer>
+</html>
+```
+
+## Built in templates
+
+Mendoza comes with a few built in templates. They should work well on their
+own or serve as good starting points for your own templates.
+
+@ul{@li{blueblog/main.html}
+    @li{simple/main.html}}

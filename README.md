@@ -1,10 +1,10 @@
 # Mendoza
 
 Mendoza is a simple static site generator, extensible with and written in the
-[Janet](https://janet-lang.org) programming language. Use markdown to author
-content and handlebars-like syntax to create templates for your HTML pages.
+[Janet](https://janet-lang.org) programming language. Use a simple markup language to author
+content and flexible HTML templates for your static content.
 Inside templates, use the full power of the [Janet](https://janet-lang.org)
-language to generate content. Mendoza first parses markup into a document,
+language to generate boilerplate. Mendoza first parses markup into a document,
 are then rendered to HTML after going through custom transformations.
 
 ## Why?

@@ -1,5 +1,7 @@
 {:title "Highlighting"
- :template "main.html"
+ :template "blueblog/main.html"
+ :author "Calvin Rose"
+ :topbar true
  :order 4}
 ---
 # Syntax Highlighting
@@ -12,7 +14,11 @@ languages. Built in grammars include @link[https://janet-lang.org]{Janet}, C, an
 
 Syntax highlighting occurs in @code{\@codeblock} blocks. For example, the following markup will do syntax highlighting for some Janet source code.
 
-@codeblock(````@codeblock[janet](`(def a (+ 1 2))`)````)
+@codeblock````
+@codeblock[janet]```
+(def a (+ 1 2))
+```
+````
 
 Produces:
 

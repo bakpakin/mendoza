@@ -34,5 +34,5 @@
                    ,(fn [x p] (string "unmatched character "
                                       (describe x)
                                       " at byte " p))))
-    :root (any (+ :normal-text :html-escape :singleton :tag :comment :openclose))
-    :main (* ':ws (? :prefix) :root (+ -1 :err))})
+    :root (any (+ :prefix :normal-text :html-escape :singleton :tag :comment :openclose ))
+    :main (* ':ws :root (+ -1 :err))})

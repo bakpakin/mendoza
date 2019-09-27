@@ -1,5 +1,7 @@
 {:title "Mendoza"
- :template "main.html"
+ :template "blueblog/main.html"
+ :author "Calvin Rose"
+ :topbar true
  :order 1}
 ---
 # Mendoza Overview

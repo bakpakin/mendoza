@@ -102,6 +102,9 @@
        circlet/logger)
      port host)))
 
+# re-export render
+(setdyn 'render (dyn 'render/render))
+
 (defn build
   "Build the static site and put it in the output folder."
   []
