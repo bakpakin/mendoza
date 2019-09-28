@@ -128,6 +128,10 @@
   "Parse mendoza markup and evaluate it returning a document tree."
   [source]
   (def env (table/setproto @{} base-env))
+  # Inherit dyns
+  (let [current-env (fiber/getenv (fiber/current))]
+    (loop [[k v] :pairs current-env :when (keyword? k)]
+      (put env k v)))
   (def matches (peg/match markup-peg source))
   (unless matches (error "bad markdown"))
   (def front-matter (matches 0))
