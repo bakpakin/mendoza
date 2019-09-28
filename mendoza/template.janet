@@ -15,6 +15,11 @@
   (def env (table/setproto @{} base-env))
   (def bufsym (gensym))
 
+  # Inherit dyns
+  (let [current-env (fiber/getenv (fiber/current))]
+    (loop [[k v] :pairs current-env :when (keyword? k)]
+      (put env k v)))
+
   # State for compilation machine
   (def p (parser/new))
   (def forms @[])
@@ -102,7 +107,8 @@
   "Adds the custom template loader to Janet's module/loaders."
   []
   (put module/loaders :mendoza-template (fn [x &] 
-                                          (wc/add (template (slurp x) x))))
+                                          (with-dyns [:current-file x]
+                                            (wc/add (template (slurp x) x)))))
   (array/insert module/paths 0 ["./templates/:all:" :mendoza-template ".html"])
   (array/insert module/paths 1 ["./mendoza/templates/:all:" :mendoza-template ".html"])
   (array/insert module/paths 2 [":sys:/mendoza/templates/:all:" :mendoza-template ".html"]))

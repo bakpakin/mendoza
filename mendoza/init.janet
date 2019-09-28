@@ -10,6 +10,7 @@
 (import ./syntax :as syntax)
 (import ./template :as template)
 (import ./sitemap :as sitemap)
+(import ./static :as static)
 (import ./watch-cache :as watch-cache)
 
 # For serving local files
@@ -30,18 +31,6 @@
 #
 # File System Helpers
 #
-
-(defn- cp-rf
-  "Copy files recursively. Does not copy file permissions, but that's ok for
-  a static site."
-  [src dest]
-  (os/mkdir dest)
-  (each f (os/dir src)
-    (let [subsrc (string src "/" f)
-          subdest (string dest "/" f)]
-      (if (= (os/stat subsrc :mode) :directory)
-        (cp-rf subsrc subdest)
-        (spit subdest (slurp subsrc))))))
 
 (defn- create-dirs
   "Recursively create directories for a path if they don't exist"
@@ -113,10 +102,6 @@
   (clean)
   (os/mkdir "site")
 
-  # Copy static stuff
-  (when (os/stat "static" :mode)
-    (cp-rf "static" "site"))
-
   # Read in pages
   (def pages @[])
   (defn read-pages [path]
@@ -140,7 +125,7 @@
     (def state @{:url url :pages pages :sitemap smap})
     (def out (render/render page @"" state))
     (def outpath (string "site" url))
-    (print "Writing HTML to " outpath "...")
+    (print "Writing HTML to " outpath)
     (create-dirs outpath)
     (spit outpath out))
 
@@ -150,7 +135,10 @@
     (render-page page url)
     (if-let [permalinks (page :permalinks)]
       (each link permalinks
-        (render-page page (url-prefix link))))))
+        (render-page page (url-prefix link)))))
+
+  # Copy static stuff
+  (static/copy-to-site))
 
 (defn watch
   "Watch for files changing, and re-run mendoza when source files

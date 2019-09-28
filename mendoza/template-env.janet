@@ -6,6 +6,8 @@
 # This file defines functions and macros that are defaultly available
 # inside templates.
 
+(import ./static :as static)
+
 (defmacro- find-each
   "Iterate like each until the body of the search evaluates to a
   truthy value, and return that."
@@ -43,3 +45,9 @@
   "Find a given section name to insert into the document."
   [name root]
   (dom-find (fn [x] (and (dictionary? x) (= (x "name") name))) root))
+
+(defn static-file
+  "Make sure a static file is available in the generated site"
+  [src &opt dest]
+  (default dest src)
+  (static/add-file src dest))

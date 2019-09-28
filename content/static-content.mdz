@@ -1,0 +1,13 @@
+{:title "Static Content"
+ :template "blueblog/main.html"
+ :author "Calvin Rose"
+ :topbar true
+ :order 6}
+---
+# Static Content
+
+Most static sites will want to included resources like images, CSS, javascript, or
+plain HTML that is not processed in any way for the final static website. Mendoza
+supports static content byte copying files from the @code`static/` directory of your code
+into the output @code`site/` directory when you build the website. Directory structure
+will be preserved as well.

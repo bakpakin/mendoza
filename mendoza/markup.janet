@@ -33,13 +33,13 @@
 
 (def- symchars
   "peg for valid symbol characters."
-  '(+ (range "09" "AZ" "az" "\x80\xFF") (set "!$%&*+-./:<?=>@^_|")))
+  '(+ (range "09" "AZ" "az" "\x80\xFF") (set "!$%&*+-./:<?=>@^_")))
 
 (def- value-grammar
   "Grammar to get the source for a valid janet value. As it
   doesn't parse the source, it can be a bit shorter and simpler."
   ~{:ws (set " \v\t\r\f\n\0")
-    :readermac (set "';~,")
+    :readermac (set "';~,|")
     :symchars ,symchars
     :token (some :symchars)
     :hex (range "09" "af" "AF")
@@ -150,6 +150,7 @@
   "Adds the custom markup loader to Janet's module/loaders."
   []
   (put module/loaders :mendoza-markup (fn [x &] 
-                                        (wc/add (markup (slurp x)))))
+                                        (with-dyns [:current-file x]
+                                          (wc/add (markup (slurp x))))))
   (array/insert module/paths 0 [":all:" :mendoza-markup ".mdz"])
   (array/insert module/paths 1 ["./content/:all:" :mendoza-markup ".mdz"]))
