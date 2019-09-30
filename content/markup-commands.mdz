@@ -33,10 +33,10 @@ See @link[/syntax-highlighting.html]{Syntax Highlighting}
 
 Make the text bigger or smaller incrementally. Example:
 
-@codeblock(`This text gets \@bigger{bigger \@bigger{and \@bigger{bigger!}}}`)
+@codeblock(`This text gets @bigger{bigger @bigger{and @bigger{bigger!}}}`)
 This text gets @bigger{bigger @bigger{and @bigger{bigger!}}}
 
-@codeblock(`This text gets \@smaller{smaller \@smaller{and \@smaller{smaller!}}}`)
+@codeblock(`This text gets @smaller{smaller @smaller{and @smaller{smaller!}}}`)
 This text gets @smaller{smaller @smaller{and @smaller{smaller!}}}
 
 ## External Content

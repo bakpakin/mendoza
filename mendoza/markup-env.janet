@@ -20,7 +20,7 @@
 (defn hr
   "Add a horizontal rule"
   []
-  {:no-escape true :content "<hr>"})
+  {:no-escape "<hr>"})
 
 (defn bigger [content] {:tag "span" "style" "font-size:1.61803398875em;" :content content})
 (defn smaller [content] {:tag "span" "style" "font-size:0.61803398875em;" :content content})
@@ -39,8 +39,7 @@
   {:tag "pre" 
    "class" "mendoza-codeblock"
    :content {:tag "code"
-             :content source2
-             :no-escape (not (not lang2))
+             :no-escape source2
              :language lang2
              "data-language" lang2}})
 (defn link
@@ -71,7 +70,7 @@
 (defn html
   "Embed some raw html"
   [source]
-  {:no-escape true :content source})
+  {:no-escape source})
 
 (defn youtube 
   "Add an embedded youtube video in the page"
@@ -119,5 +118,4 @@
   [id]
   {:tag "div"
    "class" "mendoza-video"
-   :content {:no-escape true
-             :content (string/replace "!!!!!" (string id) ./data/insta/html)}})
+   :content {:no-escape (string/replace "!!!!!" (string id) ./data/insta/html)}})

@@ -4,6 +4,8 @@
 ###
 
 (import ./watch-cache :as wc)
+(import ./render :as render)
+
 (def- base-env (require "./template-env"))
 (table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
@@ -52,7 +54,7 @@
     "Same as code-chunk, but results in sending code to the buffer."
     [str]
     (code-chunk
-      (string " (render " str " " bufsym " state) ")))
+      (string " (render " str " " bufsym ") ")))
 
   (defn string-chunk
     "Insert string chunk into parser"
@@ -78,17 +80,18 @@
     :error (error (parser/error p)))
 
   # Make ast from forms
-  (def ast ~(fn _mendoza-template [,bufsym state render]
+  (def ast ~(fn _mendoza-template [,bufsym]
               # Add important bindings to make templating easier.
               # Also helps catching template errors.
-              (def pages (state :pages))
-              (def url (state :url))
-              (def content (state :content))
-              (def sitemap (state :sitemap))
+              (def render ,render/render)
+              (def pages (dyn :pages))
+              (def sitemap (dyn :sitemap))
+              (def url (dyn :url))
+              (def content (dyn :content))
               ,;forms
               ,bufsym))
 
-  (def ctor (compile ast env (string where ":gen")))
+  (def ctor (compile ast env (string where)))
   (if-not (function? ctor)
     (error (string "could not compile template: " (string/format "%p" ctor))))
 
@@ -103,12 +106,15 @@
 # Module loading
 #
 
+(defn- template-loader
+  [x &]
+  (with-dyns [:current-file x]
+    (wc/add (template (slurp x) x))))
+
 (defn add-loader
   "Adds the custom template loader to Janet's module/loaders."
   []
-  (put module/loaders :mendoza-template (fn [x &] 
-                                          (with-dyns [:current-file x]
-                                            (wc/add (template (slurp x) x)))))
+  (put module/loaders :mendoza-template template-loader)
   (array/insert module/paths 0 ["./templates/:all:" :mendoza-template ".html"])
   (array/insert module/paths 1 ["./mendoza/templates/:all:" :mendoza-template ".html"])
   (array/insert module/paths 2 [":sys:/mendoza/templates/:all:" :mendoza-template ".html"])

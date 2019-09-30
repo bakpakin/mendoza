@@ -118,21 +118,19 @@ be included in the output html.
 Almost all templates will want to use parameters passed down from
 the content file, such as a title, author, description, post date, etc.
 Such data can be added to the front-matter of the @code`.mdz` files, and
-the templates can pick it up via the @code`state` binding of the template.
-You can put any arbitrary key value pair in the front-matter. If a template is
-nested, state from the parent template is also available in the @code`state` binding.
+the templates can pick it up via dynamic bindings in the template.
 
 @codeblock[html]```
 <!doctype html>
 <html>
   <head>
-    <title>{{ (state :title) }}</title>
+    <title>{{ (dyn :title) }}</title>
   </head>
   <body>
     {{ content }}
   </body>
   <footer>
-    Copyright &copy; {{ (state :author) }} 2019
+    Copyright &copy; {{ (dyn :author) }} 2019
   </footer>
 </html>
 ```

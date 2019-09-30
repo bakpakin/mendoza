@@ -1,12 +1,10 @@
-{$
-  (static-file "./css")
-$}
+{$ (static-file "./css") $}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <link rel="stylesheet" href="/css/main.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="/css/syntax.css" type="text/css" charset="utf-8">
-    <title>{{ (state :title) }}</title>
+    <title>{{ (dyn :title) }}</title>
   </head>
   <body>
     <div class="nice-back">
@@ -30,7 +28,7 @@ $}
       <hr>
     </div>
     <footer>
-      Copyright &copy; {{ (get state :author "") }} {{ ((os/date) :year) }}
+      Copyright &copy; {{ (dyn :author "") }} {{ ((os/date) :year) }}
     </footer>
   </body>
 </html>

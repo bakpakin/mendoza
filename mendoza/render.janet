@@ -3,7 +3,6 @@
 ### Copyright © Calvin Rose 2019
 ###
 
-(import ./template :as template)
 (import ./syntax :as syntax)
 
 (def- html-escape-chars
@@ -38,15 +37,15 @@
 
 (defn render
   "Render a document node into HTML. Returns a buffer."
-  [node buf state]
+  [node buf]
   (cond
-    (bytes? node) (if (state :no-escape)
-                    (buffer/push-string buf node)
-                    (escape node buf html-escape-chars))
-    (indexed? node) (each c node (render c buf state))
+    (bytes? node) (escape node buf html-escape-chars)
+    (indexed? node) (each c node (render c buf))
     (dictionary? node)
-    (let [next-state (merge state node)
-          tag (node :tag)]
+    (let [tag (node :tag)
+          no-escape (node :no-escape)]
+
+      # tag open
       (when tag
         (buffer/push-string buf "<" tag)
         (loop [k :keys node :when (string? k) :let [v (node k)]]
@@ -57,17 +56,26 @@
               (escape (node k) buf attribute-escape-chars)
               (buffer/push-string buf "\""))))
         (buffer/push-string buf ">"))
+
+      # syntax highlighting
       (if-let [lang (node :language)]
-        (let [content (render (node :content) @"" next-state)
+        (let [content (render (node :content) @"")
               matches (peg/match (require (string lang ".syntax")) content)]
           (highlight-genhtml buf matches))
-        (if-let [temp (node :template)
-                 fulltemp (if (string/has-suffix? ".html" temp)
-                            temp
-                            (string temp ".html"))]
-          ((require fulltemp) buf next-state render)
-          (render (node :content) buf next-state)))
+        (if-let [temp (node :template)]
+          ((require temp) buf)
+          (render (node :content) buf)))
+
+      # Literals
+      (when no-escape
+        (if (indexed? no-escape)
+          (each e no-escape
+            (buffer/push-string buf e))
+          (buffer/push-string buf no-escape)))
+
+      # tag close
       (when (and tag (not (node :no-close)))
         (buffer/push-string buf "</" tag ">")))
+
     (number? node) (buffer/push-string buf (string node)))
   buf)

@@ -122,8 +122,14 @@
   # Render a page
   (defn render-page
     [page url]
-    (def state @{:url url :pages pages :sitemap smap})
-    (def out (render/render page @"" state))
+    (def out
+      (with-dyns [:url url
+                  :pages pages
+                  :sitemap smap
+                  :page page]
+        (loop [[k v] :pairs page :when (keyword? k)]
+          (setdyn k v))
+        (render/render page @"")))
     (def outpath (string "site" url))
     (print "Writing HTML to " outpath)
     (create-dirs outpath)
