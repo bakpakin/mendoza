@@ -65,10 +65,14 @@
 # Some capture functions to make markup a bit
 # more like markdown. This is useful in the common
 # case.
-(defn- capp [& content] (unless (empty? content)
-                          {:tag "p" :content (array/slice content)}))
-(defn- caph [n & content] {:tag (string "h" (length n)) :content
-                           (array/slice content)})
+
+(defn- capp [& content]
+  (unless (empty? content)
+    {:tag "p" :content (array/slice content)}))
+
+(defn- caph [n & content]
+  {:tag (string "h" (length n)) :content
+   (array/slice content)})
 
 (def- markup-grammar
   "Grammar for markdown -> document AST parser."

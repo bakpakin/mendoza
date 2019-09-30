@@ -111,4 +111,7 @@
                                             (wc/add (template (slurp x) x)))))
   (array/insert module/paths 0 ["./templates/:all:" :mendoza-template ".html"])
   (array/insert module/paths 1 ["./mendoza/templates/:all:" :mendoza-template ".html"])
-  (array/insert module/paths 2 [":sys:/mendoza/templates/:all:" :mendoza-template ".html"]))
+  (array/insert module/paths 2 [":sys:/mendoza/templates/:all:" :mendoza-template ".html"])
+  (array/insert module/paths 3 ["./templates/:all:" :mendoza-template ".tmpl"])
+  (array/insert module/paths 4 ["./mendoza/templates/:all:" :mendoza-template ".tmpl"])
+  (array/insert module/paths 5 [":sys:/mendoza/templates/:all:" :mendoza-template ".tmpl"]))

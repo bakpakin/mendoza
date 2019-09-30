@@ -26,6 +26,11 @@
 (defn smaller [content] {:tag "span" "style" "font-size:0.61803398875em;" :content content})
 (defn code [content] {:tag "code" "class" "mendoza-code" :content content})
 
+(defn anchor
+  "Create an in-page anchor for a local link."
+  [name & content]
+  {:tag "a" "name" name :content content})
+
 (defn codeblock
   "Inline code or codeblock"
   [lang &opt source]

@@ -6,23 +6,11 @@
 ---
 # Mendoza Overview
 
-Mendoza was created to eventually be of use in the website for
-the Janet language - in this regard, its aim is to be a tool
-for authoring handwritten documentation files, but flexible enough
-for other static uses like a blog, slideshow, or personal website
-(things I would like to use mendoza for). However, much of this
-functionality should be plugged into Mendoza externally. The core
-of Mendoza should be fairly simple and dumb, at least in comparison
-to similar tools. It should only take a single content file to get
-a working site out of the box.
+Mendoza is a static site generator. It is a thin wrapper around the Janet programming language
+for templaing HTML, writing Markup, and developing a static website. The template and markup
+languages are both Janet DSLs, or dialects, so can used ordinary Janet functions, macros, and modules.
 
-Although originally written with Markdown, mendoza is now using a
-custom markup syntax. This is because markdown is not flexible enough
-for the kind of templating I wanted to be able to do, the syntax is
-too ambiguous/complicated/whitespace sensitive, and it is not
-tied close enough to host lanugage, Janet.
-
-Instead, with inspiration from @link[https://docs.racket-lang.org/scribble/]{Scribble}, 
+With inspiration from @link[https://docs.racket-lang.org/scribble/]{Scribble},
 we are using a macro system which expands the entire document into a Janet data structure, and
 then calls @code[eval] on that data structure to genereate a document. That document is then
 rendered into HTML, with each node having an optional bar template. This design is flexible enough
@@ -30,25 +18,27 @@ to let us dictate form from the markup (via janet functions and macros) and from
 (templates can wrap nodes in HTML, and even call other janet functions to render markup in
 arbitrary ways. HTML, however, remains the sole intended output format.
 
-## Differences from Markdown
+## Simple Example
 
-Mendoza is designed with different goals in mind than what the creators
-of markdown had. It shares some goals with LaTeX as well, but it is not
-intended for typesetting, only authoring HTML documentation.
+It should be easy to get a basic site up and running in Mendoza, as there are no configuration
+files required and templates are provided out of the box.
 
-@ul{@li{Mendoza markup has less syntax than markup (excluding janet syntax), and
-        instead relies on functions to extend it's functionality.}
-    @li{Mendoza markup is more flexible than Markdown and can express all valid HTML
-        documents. Users can defined their own forms, which can operate on either Janet
-        values, markup sub-documents, or both.}
-    @li{Mendoza has a built in HTML templating system, which makes it easy to author
-        rich static webpages with Mendoza. While markdown is intended for articles and rich
-        text, Mendoza can be used for writing documentation and technical, content rich documents.}
-    @li{Mendoza and the syntax is deeply integrated with the Janet language. Markdown is simpler with
-        bindings for many languages.}
-    @li{Will not allow embedded HTML be default. While HTML tags can be embedded in Markdown, Mendoza
-        instead relies on the document model, which can express all valid HTML. Better yet, use
-        templates to author documents.}
-    @li{Mendoza markup contains front-matter, which is document-local meta data which can
-        be used by the templating system. While standard markdown does not have front matter, many
-        templating systems use Markdown with front matter for metadata.}}
+Below is an equivalent of "Hello, World!" for mendoza. Put it in a file @code`content/index.mdz`
+and run @code`mdz` from the project directory to generate your site.
+
+@code`content/index.mdz`
+@codeblock```
+{:title "Hello, world!"
+ :template "blueblog/main.html"
+ :author "me@myself.net"}
+---
+# Hey there!
+
+Welcome to my site!
+```
+
+## Serving the Site
+
+Once your site has been generated, the output artifacts will be in the @code`site` directory.
+You can then serve these with your favorite HTTP server, or run @code`mdz serve` to serve
+them on the local machine with circlet.
