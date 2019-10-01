@@ -19,10 +19,13 @@
   Actions:
     help               - Print this usage information
     build              - Create the static site in the 'site' directory
+     [site="site"]     -- output directory for site
     clean              - Destory the static site directory
+     [site="site"]     -- output directory from a previous build
     serve              - Serves current site. Uses circlet to serve.
      [port=8000]       -- optional port
      [host=127.0.0.1]  -- optional host
+     [site="site"]     -- output directory to serve from
     watch              - Watch files and rebuild if any change.
     version            - Print the mendoza version
 ```)
@@ -37,7 +40,7 @@
 (case action
   "help" (print (args 0) usage)
   "version" (print mdz/version)
-  "clean" (mdz/clean)
-  "serve" (mdz/serve (if (> (length args) 2) (args 2)))
+  "clean" (mdz/clean (args 2))
+  "serve" (mdz/serve (args 2) (args 3) (args 4))
   "watch" (mdz/watch)
-  "build" (mdz/build))
+  "build" (mdz/build (args 2)))

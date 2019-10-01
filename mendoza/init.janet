@@ -71,22 +71,24 @@
 
 (defn clean
   "Clean up the old site."
-  []
-  (print "Removing directory site...")
-  (rimraf "site")
+  [&opt site]
+  (default site "site")
+  (print "Removing directory " site "...")
+  (rimraf site)
   (print "Unloading cached modules...")
   (watch-cache/clean))
 
 (defn serve
   "Serve the site locally."
-  [&opt port host]
+  [&opt port host site]
   (default port 8000)
   (default host "127.0.0.1")
+  (default site "site")
   (let [port ((if (string? port) scan-number identity) port)]
     (circlet/server
      (->
        {:default {:kind :static
-                  :root "site"}}
+                  :root site}}
        circlet/router
        circlet/logger)
      port host)))
@@ -96,11 +98,13 @@
 
 (defn build
   "Build the static site and put it in the output folder."
-  []
+  [&opt site]
+
+  (default site "site")
 
   # Clean up old artifacts
-  (clean)
-  (os/mkdir "site")
+  (clean site)
+  (os/mkdir site)
 
   # Read in pages
   (def pages @[])
@@ -131,7 +135,7 @@
         (loop [[k v] :pairs page :when (keyword? k)]
           (setdyn k v))
         (render/render page @"")))
-    (def outpath (string "site" url))
+    (def outpath (string site url))
     (print "Writing HTML to " outpath)
     (create-dirs outpath)
     (spit outpath out))
@@ -145,7 +149,7 @@
         (render-page page (url-prefix link)))))
 
   # Copy static stuff
-  (static/copy-to-site))
+  (static/copy-to-site site))
 
 (defn watch
   "Watch for files changing, and re-run mendoza when source files

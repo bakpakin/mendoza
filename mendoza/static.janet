@@ -43,12 +43,12 @@
 
         (string dirname "/" src))
       (string (os/cwd) "/" src)))
-  (put mappings (string "./site/" dest) full-src))
+  (put mappings dest full-src))
 
 (defn copy-to-site
   "Move all registered assets into the site directory."
-  []
+  [site]
   (when (os/stat "static" :mode)
-    (cp-rf "static" "site"))
+    (cp-rf "static" site))
   (each [dest src] (sort (pairs mappings))
-    (cp-rf src dest)))
+    (cp-rf src (string "./" site "/" dest))))
