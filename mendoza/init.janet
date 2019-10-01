@@ -73,8 +73,9 @@
   "Clean up the old site."
   [&opt site]
   (default site "site")
-  (print "Removing directory " site "...")
-  (rimraf site)
+  (unless (= site ".")
+    (print "Removing directory " site "...")
+    (rimraf site))
   (print "Unloading cached modules...")
   (watch-cache/clean))
 
