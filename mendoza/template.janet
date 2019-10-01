@@ -83,6 +83,7 @@
   (def ast ~(fn _mendoza-template [,bufsym]
               # Add important bindings to make templating easier.
               # Also helps catching template errors.
+              (def state dyn) # for backwards compatibility
               (def render ,render/render)
               (def pages (dyn :pages))
               (def sitemap (dyn :sitemap))
