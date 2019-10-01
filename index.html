@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/main.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" charset="utf-8">
+    <title>Mendoza</title>
+  </head>
+  <body>
+    <div class="nice-back">
+      <div class="content-wrapper">
+        <div class="heading">
+          
+          <span class="head-main">
+            <a href="/index.html">Mendoza</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/markup-commands.html">Markup Commands</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/markup.html">Markup</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/syntax-highlighting.html">Highlighting</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/templating.html">Templates</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/static-content.html">Static Content</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="content-wrapper">
+      <div class="inner-wrapper">
+        
+<h1>Mendoza Overview
+</h1>
+<p>Mendoza is a static site generator. It is a thin wrapper around the Janet programming language
+for templaing HTML, writing Markup, and developing a static website. The template and markup
+languages are both Janet DSLs, or dialects, so can used ordinary Janet functions, macros, and modules.
+</p>
+<p>With inspiration from <a href="https://docs.racket-lang.org/scribble/">Scribble</a>,
+we are using a macro system which expands the entire document into a Janet data structure, and
+then calls <code class="mendoza-code">eval</code> on that data structure to genereate a document. That document is then
+rendered into HTML, with each node having an optional bar template. This design is flexible enough
+to let us dictate form from the markup (via janet functions and macros) and from the templates
+(templates can wrap nodes in HTML, and even call other janet functions to render markup in
+arbitrary ways. HTML, however, remains the sole intended output format.
+</p>
+<h2>Simple Example
+</h2>
+<p>It should be easy to get a basic site up and running in Mendoza, as there are no configuration
+files required and templates are provided out of the box.
+</p>
+<p>Below is an equivalent of "Hello, World!" for mendoza. Put it in a file <code class="mendoza-code">content/index.mdz</code>
+and run <code class="mendoza-code">mdz</code> from the project directory to generate your site.
+</p>
+<code class="mendoza-code">content/index.mdz</code><pre class="mendoza-codeblock"><code>{:title "Hello, world!"
+ :template "blueblog/main.html"
+ :author "me@myself.net"}
+---
+# Hey there!
+
+Welcome to my site!</code></pre><h2>Serving the Site
+</h2>
+<p>Once your site has been generated, the output artifacts will be in the <code class="mendoza-code">site</code> directory.
+You can then serve these with your favorite HTTP server, or run <code class="mendoza-code">mdz serve</code> to serve
+them on the local machine with circlet.
+</p>
+      </div>
+    </div>
+    <div class="pre-footer">
+      <hr>
+    </div>
+    <footer>
+      Copyright &copy; Calvin Rose 2019
+    </footer>
+  </body>
+</html>

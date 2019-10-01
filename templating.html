@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/main.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" charset="utf-8">
+    <title>Templates</title>
+  </head>
+  <body>
+    <div class="nice-back">
+      <div class="content-wrapper">
+        <div class="heading">
+          
+          <span class="head-span">
+            <a href="/index.html">Mendoza</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/markup-commands.html">Markup Commands</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/markup.html">Markup</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/syntax-highlighting.html">Highlighting</a>
+          </span>
+          
+          <span class="head-main">
+            <a href="/templating.html">Templates</a>
+          </span>
+          
+          <span class="head-span">
+            <a href="/static-content.html">Static Content</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="content-wrapper">
+      <div class="inner-wrapper">
+        
+<h1>Templates
+</h1>
+<p>Mendoza has a simple templating system for easily wrapping
+your content in boilerplate HTML tags. Templates are the easiest
+way to customize the structure of your website. Templates live
+in the <code class="mendoza-code">templates/</code> directory of your site source.
+</p>
+<h2>Using templates
+</h2>
+<p>To use a template, you need to add the <code class="mendoza-code">:template</code> key to the front-matter of
+your markup file. You can place your own templates in the <code class="mendoza-code">templates/</code> directory
+of your project, and then reference them by their path.
+</p>
+<pre class="mendoza-codeblock"><code>{:title "My Blog Post"
+ :template "my-template.html"}
+---
+Hello, blog!</code></pre><h2>A Simple Template
+</h2>
+<p>The simplest template is just a plain HTML file.
+</p>
+<pre class="mendoza-codeblock"><code data-language="html"><span class="mdzsyn-comment">&lt;!doctype html&gt;</span>
+&lt;<span class="mdzsyn-keyword">html</span>&gt;
+  &lt;<span class="mdzsyn-keyword">head</span>&gt;
+    &lt;<span class="mdzsyn-keyword">meta</span> <span class="mdzsyn-identifier">charset</span>=<span class="mdzsyn-string">"utf-8"</span>&gt;
+  &lt;/<span class="mdzsyn-keyword">head</span>&gt;
+  &lt;<span class="mdzsyn-keyword">body</span>&gt;
+    &lt;<span class="mdzsyn-keyword">h1</span>&gt;Hello, world!&lt;/<span class="mdzsyn-keyword">h1</span>&gt;
+  &lt;/<span class="mdzsyn-keyword">body</span>&gt;
+&lt;/<span class="mdzsyn-keyword">html</span>&gt;</code></pre><h2>Code in Templates
+</h2>
+<p>The main benefit of templates is the ability to embed both Janet code and other
+templates inside ypur pages. The template syntax has three ways to include Janet
+expressions in the generated html (or any other kind of text file!). The body of
+your content markup will be exposed in the template as the <code class="mendoza-code">content</code> binding.
+</p>
+<h3><code class="mendoza-code">{{ node }}</code>
+</h3>
+<p>Use of double curly braces in a template substitutes a node of the document graph in the final output.
+<code class="mendoza-code">node</code> must be a Janet expression that will be rendered and spliced into the output file. <code class="mendoza-code">node</code>
+will usually be either a string or a nested table, representing a DOM node that will be rendered by <code class="mendoza-code">mendoza/render</code>.
+You can also include other templates with the <code class="mendoza-code">:template</code> key in the node.
+</p>
+<pre class="mendoza-codeblock"><code data-language="html"><span class="mdzsyn-comment">&lt;!doctype html&gt;</span>
+&lt;<span class="mdzsyn-keyword">html</span>&gt;
+  &lt;<span class="mdzsyn-keyword">head</span>&gt;
+    {{ {:template "mytemplate/head.html"} }}
+  &lt;/<span class="mdzsyn-keyword">head</span>&gt;
+  &lt;<span class="mdzsyn-keyword">body</span>&gt;
+    {{ content }}
+  &lt;/<span class="mdzsyn-keyword">body</span>&gt;
+  &lt;<span class="mdzsyn-keyword">footer</span>&gt;
+    {{ {:template "mytemplate/footer.html} }}
+  &lt;/<span class="mdzsyn-keyword">footer</span>&gt;
+&lt;/<span class="mdzsyn-keyword">html</span>&gt;</code></pre><h3><code class="mendoza-code">{% raw-janet %}</code>
+</h3>
+<p>It is often useful to be able to create loops or other logic inside a template to generate lists, tables, and
+other data. This syntax lets you splice Janet code into the template, so is very powerful when paired with Janet's
+looping constructs like <code class="mendoza-code">for</code>, <code class="mendoza-code">each</code>, <code class="mendoza-code">loop</code>, and <code class="mendoza-code">while</code>. Code inside these delimiters will
+be executed every time the template runs.
+</p>
+<pre class="mendoza-codeblock"><code data-language="html"><span class="mdzsyn-comment">&lt;!doctype html&gt;</span>
+&lt;<span class="mdzsyn-keyword">html</span>&gt;
+  &lt;<span class="mdzsyn-keyword">body</span>&gt;
+    &lt;<span class="mdzsyn-keyword">ul</span>&gt;
+      {% (for i 0 100 %}
+        &lt;<span class="mdzsyn-keyword">li</span>&gt;Item {{ i }}&lt;/<span class="mdzsyn-keyword">li</span>&gt;
+      {% ) %}
+    &lt;/<span class="mdzsyn-keyword">ul</span>&gt;
+  &lt;/<span class="mdzsyn-keyword">body</span>&gt;
+&lt;/<span class="mdzsyn-keyword">html</span>&gt;</code></pre><p>When inserting HTML inside janet forms like above, the HTML will be appended to
+the final output each time the body of that form is run. This means that
+although the <code class="mendoza-code">for</code> macro in Janet evaluates to nil, 100 items will still
+be added to output document.
+</p>
+<h3><code class="mendoza-code">{$ janet $}</code>
+</h3>
+<p>Dollar braces are similar to percent braces, but will only run once, when the
+template is compiled. You can use the delimiters to import Janet modules or
+define helper functions for your template. The results of items here will not
+be included in the output html.
+</p>
+<pre class="mendoza-codeblock"><code data-language="html">{$ (import json) $}
+<span class="mdzsyn-comment">&lt;!doctype html&gt;</span>
+&lt;<span class="mdzsyn-keyword">html</span>&gt;
+  &lt;<span class="mdzsyn-keyword">body</span>&gt;
+      &lt;<span class="mdzsyn-keyword">pre</span>&gt;
+        {{ (janet/encode (range 100)) }}
+      &lt;/<span class="mdzsyn-keyword">pre</span>&gt;
+  &lt;/<span class="mdzsyn-keyword">body</span>&gt;
+&lt;/<span class="mdzsyn-keyword">html</span>&gt;</code></pre><h2>State from the front-matter
+</h2>
+<p>Almost all templates will want to use parameters passed down from
+the content file, such as a title, author, description, post date, etc.
+Such data can be added to the front-matter of the <code class="mendoza-code">.mdz</code> files, and
+the templates can pick it up via dynamic bindings in the template.
+</p>
+<pre class="mendoza-codeblock"><code data-language="html"><span class="mdzsyn-comment">&lt;!doctype html&gt;</span>
+&lt;<span class="mdzsyn-keyword">html</span>&gt;
+  &lt;<span class="mdzsyn-keyword">head</span>&gt;
+    &lt;<span class="mdzsyn-keyword">title</span>&gt;{{ (dyn :title) }}&lt;/<span class="mdzsyn-keyword">title</span>&gt;
+  &lt;/<span class="mdzsyn-keyword">head</span>&gt;
+  &lt;<span class="mdzsyn-keyword">body</span>&gt;
+    {{ content }}
+  &lt;/<span class="mdzsyn-keyword">body</span>&gt;
+  &lt;<span class="mdzsyn-keyword">footer</span>&gt;
+    Copyright <span class="mdzsyn-character">&amp;copy;</span> {{ (dyn :author) }} 2019
+  &lt;/<span class="mdzsyn-keyword">footer</span>&gt;
+&lt;/<span class="mdzsyn-keyword">html</span>&gt;</code></pre><h2>Built in templates
+</h2>
+<p>Mendoza comes with a few built in templates. They should work well on their
+own or serve as good starting points for your own templates.
+</p>
+<ul><li>blueblog/main.html</li>
+    <li>simple/main.html</li></ul>
+      </div>
+    </div>
+    <div class="pre-footer">
+      <hr>
+    </div>
+    <footer>
+      Copyright &copy; Calvin Rose 2019
+    </footer>
+  </body>
+</html>
