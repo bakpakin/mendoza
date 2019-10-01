@@ -115,6 +115,7 @@
               (put page :url (page-get-url page))
               (array/push pages page))))
   (read-pages "content")
+  (read-pages "doc")
 
   # Make sitemap
   (def smap (sitemap/create pages))

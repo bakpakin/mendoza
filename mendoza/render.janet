@@ -59,7 +59,7 @@
 
       # syntax highlighting
       (if-let [lang (node :language)]
-        (let [content (render (node :content) @"")
+        (let [content (node :content)
               matches (peg/match (require (string lang ".syntax")) content)]
           (highlight-genhtml buf matches))
         (if-let [temp (node :template)]

@@ -39,7 +39,7 @@
   {:tag "pre" 
    "class" "mendoza-codeblock"
    :content {:tag "code"
-             :no-escape source2
+             :content source2
              :language lang2
              "data-language" lang2}})
 (defn link
