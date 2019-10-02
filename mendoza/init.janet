@@ -180,7 +180,7 @@
   (rebuild)
   (def cmd (string "inotifywait -m -r " watched-dirs "-e modify"))
   (def proc (file/popen cmd :r))
-  (if (not proc) (error "could not run " (describe cmd)))
+  (if (not proc) (error (string "could not run " (describe cmd))))
   (while true
     (print "Waiting...")
     (def x (:read proc :line))
