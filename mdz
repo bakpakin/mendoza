@@ -20,6 +20,7 @@
     help               - Print this usage information
     build              - Create the static site in the 'site' directory
      [site="site"]     -- output directory for site
+     [root="/"]        -- url path that site expects to be under on the server
     clean              - Destory the static site directory
      [site="site"]     -- output directory from a previous build
     serve              - Serves current site. Uses circlet to serve.
@@ -43,4 +44,4 @@
   "clean" (mdz/clean (args 2))
   "serve" (mdz/serve (args 2) (args 3) (args 4))
   "watch" (mdz/watch)
-  "build" (mdz/build (args 2)))
+  "build" (mdz/build (args 2) (args 3)))

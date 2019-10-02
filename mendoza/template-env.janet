@@ -51,3 +51,17 @@
   [src &opt dest]
   (default dest src)
   (static/add-file src dest))
+
+(defn relative-url
+  "Express a url relative to (dyn :url). The given url should
+  be absolute from the site root, like /index.html."
+  [url]
+  (def b-parts (string/split "/" (dyn :url)))
+  (array/remove b-parts -2)
+  (def a-parts (string/split "/" url))
+  (while (and (not= 0 (length a-parts))
+              (not= 0 (length b-parts))
+              (= (a-parts 0) (b-parts 0)))
+    (array/remove a-parts 0)
+    (array/remove b-parts 0))
+  (string (string/repeat "../" (length b-parts)) (string/join a-parts "/")))
