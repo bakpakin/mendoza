@@ -63,7 +63,9 @@
 (defn- url-prefix
   "Make sure URL has leading slash."
   [url]
-  (if (= ("/" 0) (url 0)) url (string "/" url)))
+  (if (= ("/" 0) (url 0))
+    url
+    (string (dyn :site-root "/") url)))
 
 #
 # Main API
@@ -99,9 +101,12 @@
 
 (defn build
   "Build the static site and put it in the output folder."
-  [&opt site]
+  [&opt site root]
 
   (default site "site")
+  (default root "/")
+
+  (setdyn :site-root root)
 
   # Clean up old artifacts
   (clean site)
@@ -143,7 +148,7 @@
 
   # Render all pages
   (loop [page :in pages]
-    (def url (page :url))
+    (def url (url-prefix (page :url)))
     (render-page page url)
     (if-let [permalinks (page :permalinks)]
       (each link permalinks
@@ -175,7 +180,7 @@
   (rebuild)
   (def cmd (string "inotifywait -m -r " watched-dirs "-e modify"))
   (def proc (file/popen cmd :r))
-  (if (not proc) (error "could not run " (describe cmd)))
+  (if (not proc) (error (string "could not run " (describe cmd))))
   (while true
     (print "Waiting...")
     (def x (:read proc :line))
