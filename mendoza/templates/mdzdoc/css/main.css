@@ -45,7 +45,7 @@ table {
 body {
     font-size: 1rem;
     font-family: sans-serif;
-    line-height: 1.3;
+    line-height: 1.4;
     color: #222
 }
 
@@ -80,6 +80,8 @@ a {
 h1, h2, h3, h4 {
     font-family: 'Dosis','Helvetica', sans-serif;
     color: #111;
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 h1 {
@@ -211,9 +213,23 @@ table tr th :last-child, table tr td :last-child {
     font-family: monospace;
 }
 
+.binding-wrap {
+    padding-bottom: 15px;
+}
+
+.binding-realval {
+    font-family: monospace;
+    background: #eee;
+    padding: 4px;
+}
+
 .binding-type {
     float: right;
-    transform: translateY(-40px);
+}
+
+.binding {
+    font-size: 1.4em;
+    color: steelblue;
 }
 
 .source-map {

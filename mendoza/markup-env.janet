@@ -146,38 +146,49 @@
          :ref ref
          :source-map sm
          :doc docstring} env-entry
+        real-val (if ref (get ref 0) val)
         binding-type (cond
                        macro :macro
-                       ref (string :var " (" (type (get ref 0)) ")")
+                       ref (string :var " (" (type real-val) ")")
                        (type val))
+        full-binding-type (cond
+                            macro binding-type
+                            (and (nil? real-val) (not ref)) binding-type
+                            (function? real-val) binding-type
+                            (cfunction? real-val) binding-type
+                            (and (bytes? real-val) (< 35 (length real-val))) binding-type
+                            [binding-type " " {:tag "code" "class" "binding-realval" :content (describe real-val)}])
         source-ref (if-let [[path line col] sm]
                      {:tag "span" "class" "source-map" :content (string path " at line " line ", column " col)}
                      "")
         doc2 (or docstring "")
         doc-dom (peg/match docstring-peg doc2)]
     {:tag "div" "class" "docstring" :content
-     [{:tag "h3" "class" "binding" :content {:tag "a" "id" key :content (string key)}}
-      {:tag "span" "class" "binding-type" :content binding-type}
+     [{:tag "div" "class" "binding-wrap"
+       :content [{:tag "span" "class" "binding" :content {:tag "a" "id" key :content (string key)}}
+                 {:tag "span" "class" "binding-type" :content full-binding-type}]}
       doc-dom
       source-ref]}))
 
 (defn api-docs
   "Generate docs for a given module. Returns a node."
-  [module]
+  [module &opt prefix]
   (def env (if (string? module) (require module) module))
   (seq [[k entry]
         :in (sort (pairs env))
         :when (symbol? k)
+        :when (or (not prefix) (string/has-prefix? prefix k))
         :when (and (get entry :doc) (not (get entry :private)))]
        (emit-item k entry)))
 
 (defn api-index
   "Generate an index for the given docs."
-  [module]
+  [module &opt prefix]
   (def env (if (string? module) (require module) module))
   (def items (seq [[k entry]
         :in (sort (pairs env))
         :when (symbol? k)
+        :when (or (not prefix) (string/has-prefix? prefix k))
         :when (and (get entry :doc) (not (get entry :private)))]
     {:tag "a" "href" (string "#" k) :content (string k)}))              
-  (interpose {:tag "span" :content "" "class" "divider"} items))
+  {:tag "p" :content (interpose {:tag "span" :content "" "class" "divider"} items)})
