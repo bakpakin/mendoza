@@ -119,3 +119,65 @@
   {:tag "div"
    "class" "mendoza-video"
    :content {:no-escape (string/replace "!!!!!" (string id) ./data/insta/html)}})
+
+# Documentation generation
+
+(def- docstring-peg-source
+  "Convert a docstring into a dom node."
+  ~{:ws (set " \t\r\n\0\f")
+    :funcdef (* (any :ws) 
+                (/ '(* "(" (any (if-not ")" 1)) ")")
+                  ,|{:tag "div" "class" "signature" 
+                     :content {:tag "code" :content $ :language "janet"}})
+                "\n\n")
+    :br (* "\n\n" (constant {:tag "br" :no-close true}))
+    :li (* "\t" (/ '(any (if-not "\n" 1)) ,|{:tag "li" :content $}))
+    :ul (* (some :li) (+ "\n" -1))
+    :sent '(some (if-not "\n" 1))
+    :main (* (? :funcdef) (any (+ :ul :sent :br "\n")))})
+
+(def- docstring-peg (peg/compile docstring-peg-source))
+
+(defn- emit-item
+  "Generate documentation for one entry."
+  [key env-entry]
+  (let [{:macro macro
+         :value val
+         :ref ref
+         :source-map sm
+         :doc docstring} env-entry
+        binding-type (cond
+                       macro :macro
+                       ref (string :var " (" (type (get ref 0)) ")")
+                       (type val))
+        source-ref (if-let [[path line col] sm]
+                     {:tag "span" "class" "source-map" :content (string path " at line " line ", column " col)}
+                     "")
+        doc2 (or docstring "")
+        doc-dom (peg/match docstring-peg doc2)]
+    {:tag "div" "class" "docstring" :content
+     [{:tag "h3" "class" "binding" :content {:tag "a" "id" key :content (string key)}}
+      {:tag "span" "class" "binding-type" :content binding-type}
+      doc-dom
+      source-ref]}))
+
+(defn api-docs
+  "Generate docs for a given module. Returns a node."
+  [module]
+  (def env (if (string? module) (require module) module))
+  (seq [[k entry]
+        :in (sort (pairs env))
+        :when (symbol? k)
+        :when (and (get entry :doc) (not (get entry :private)))]
+       (emit-item k entry)))
+
+(defn api-index
+  "Generate an index for the given docs."
+  [module]
+  (def env (if (string? module) (require module) module))
+  (def items (seq [[k entry]
+        :in (sort (pairs env))
+        :when (symbol? k)
+        :when (and (get entry :doc) (not (get entry :private)))]
+    {:tag "a" "href" (string "#" k) :content (string k)}))              
+  (interpose {:tag "span" :content "" "class" "divider"} items))

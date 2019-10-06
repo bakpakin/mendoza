@@ -1,0 +1,19 @@
+{$ (static-file "./css" "css") $}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="{{ (relative-url `/css/main.css`) }}" type="text/css" charset="utf-8">
+    <title>{{ (dyn :title) }}</title>
+    <meta name="description" content="{{ (dyn :description) }}">
+  </head>
+  <body>
+    <div class="content-wrapper">
+      {{ content }}
+    </div>
+    <footer>
+      <div class="content-wrapper">
+        Copyright &copy; {{ (dyn :author "") }} {{ ((os/date) :year) }}
+      </div>
+    </footer>
+  </body>
+</html>
