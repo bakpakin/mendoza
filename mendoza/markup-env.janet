@@ -127,8 +127,7 @@
   ~{:ws (set " \t\r\n\0\f")
     :funcdef (* (any :ws) 
                 (/ '(* "(" (any (if-not ")" 1)) ")")
-                  ,|{:tag "div" "class" "signature" 
-                     :content {:tag "code" :content $ :language "janet"}})
+                  ,|(codeblock "janet" $))
                 "\n\n")
     :br (* "\n\n" (constant {:tag "br" :no-close true}))
     :li (* "\t" (/ '(any (if-not "\n" 1)) ,|{:tag "li" :content $}))

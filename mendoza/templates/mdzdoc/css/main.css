@@ -196,21 +196,27 @@ table tr th :last-child, table tr td :last-child {
     }
 }
 
+/* Code */
+
+code, pre {
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+.mendoza-codeblock {
+    margin: 15px 0;
+    line-height: 1.2;
+    border-radius: 5px;
+    padding: 10px;
+    background: #eee;
+    color: #111;
+}
+
 /* Docstrings */
 
 .divider {
     padding-left: 3px;
     padding-right: 3px;
-}
-
-.signature {
-    padding: 8px;
-    margin: 15px 0;
-    border-radius: 2px;
-    background: #eee;
-    color: #111;
-    border: solid 1px #888;
-    font-family: monospace;
 }
 
 .binding-wrap {
