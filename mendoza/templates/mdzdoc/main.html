@@ -1,8 +1,8 @@
-{$ (static-file "./css" "css") $}
+{$ (static-file "./css" "mdzdoc-css") $}
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" href="{{ (relative-url `/css/main.css`) }}" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="{{ (relative-url `/mdzdoc-css/main.css`) }}" type="text/css" charset="utf-8">
     <title>{{ (dyn :title) }}</title>
     <meta name="description" content="{{ (dyn :description) }}">
   </head>

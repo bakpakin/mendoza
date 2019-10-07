@@ -18,6 +18,14 @@ to let us dictate form from the markup (via janet functions and macros) and from
 (templates can wrap nodes in HTML, and even call other janet functions to render markup in
 arbitrary ways. HTML, however, remains the sole intended output format.
 
+## API Reference
+
+@p{@link[/api.html]}
+
+## Source Code
+
+@p{@link[https://github.com/bakpakin/mendoza]}
+
 ## Simple Example
 
 It should be easy to get a basic site up and running in Mendoza, as there are no configuration

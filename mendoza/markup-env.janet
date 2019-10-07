@@ -133,7 +133,7 @@
     :li (* "\t" (/ '(any (if-not "\n" 1)) ,|{:tag "li" :content $}))
     :ul (* (some :li) (+ "\n" -1))
     :sent '(some (if-not "\n" 1))
-    :main (* (? :funcdef) (any (+ :ul :sent :br "\n")))})
+    :main (* (? :funcdef) (/ (group (any (+ :ul :sent :br "\n"))) ,|{:tag "p" :content $}))})
 
 (def- docstring-peg (peg/compile docstring-peg-source))
 
@@ -158,16 +158,16 @@
                             (and (bytes? real-val) (< 35 (length real-val))) binding-type
                             [binding-type " " {:tag "code" "class" "binding-realval" :content (describe real-val)}])
         source-ref (if-let [[path line col] sm]
-                     {:tag "span" "class" "source-map" :content (string path " at line " line ", column " col)}
+                     {:tag "div" "class" "source-map" :content (string path " at line " line ", column " col)}
                      "")
         doc2 (or docstring "")
         doc-dom (peg/match docstring-peg doc2)]
     {:tag "div" "class" "docstring" :content
      [{:tag "div" "class" "binding-wrap"
        :content [{:tag "span" "class" "binding" :content {:tag "a" "id" key :content (string key)}}
-                 {:tag "span" "class" "binding-type" :content full-binding-type}]}
-      doc-dom
-      source-ref]}))
+                 {:tag "span" "class" "binding-type" :content full-binding-type}
+                 source-ref]}
+      doc-dom]}))
 
 (defn api-docs
   "Generate docs for a given module. Returns a node."
@@ -190,4 +190,4 @@
         :when (or (not prefix) (string/has-prefix? prefix k))
         :when (and (get entry :doc) (not (get entry :private)))]
     {:tag "a" "href" (string "#" k) :content (string k)}))              
-  {:tag "p" :content (interpose {:tag "span" :content "" "class" "divider"} items)})
+  {:tag "p" :content (interpose {:tag "span" :content " " "class" "divider"} items)})

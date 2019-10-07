@@ -204,7 +204,7 @@ code, pre {
 }
 
 .mendoza-codeblock {
-    margin: 15px 0;
+    margin: 20px;
     line-height: 1.2;
     border-radius: 5px;
     padding: 10px;
@@ -214,13 +214,8 @@ code, pre {
 
 /* Docstrings */
 
-.divider {
-    padding-left: 3px;
-    padding-right: 3px;
-}
-
 .binding-wrap {
-    padding-bottom: 15px;
+    padding: 15px 20px;
 }
 
 .binding-realval {
@@ -245,7 +240,6 @@ code, pre {
 
 .docstring {
     border-bottom: solid 2px steelblue;
-    padding: 20px;
 }
 
 /* Tables */
@@ -292,14 +286,14 @@ footer {
 
 /* Syntax */
 .mdzsyn-number { color: #89dc76; }
-.mdzsyn-keyword { color: #ffd866; }
+.mdzsyn-keyword { color: #eec755; }
 .mdzsyn-string { color: #ab90f2; }
-.mdzsyn-coresym { color: #ff6188; }
-.mdzsyn-constant { color: #fc9867; }
-.mdzsyn-string { color: #fc9867; }
+.mdzsyn-coresym { color: #ee5077; }
+.mdzsyn-constant { color: #eb8756; }
+.mdzsyn-string { color: #eb8756; }
 .mdzsyn-character { color: red; }
-.mdzsyn-identifier { color: white; }
+.mdzsyn-identifier { color: #333; }
 .mdzsyn-comment { color: gray; }
-.mdzsyn-operator { color: white; }
+.mdzsyn-operator { color: #333; }
 .mdzsyn-type { color: green; }
-.mdzsyn-line { color: gray; }
+.mdzsyn-line { color: darkgray; }
