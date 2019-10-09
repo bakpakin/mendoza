@@ -1,0 +1,19 @@
+{:title "Markup API"
+ :template "mdzdoc/main.html"
+ :author "Calvin Rose"
+ :topbar true
+ :order 1}
+---
+
+# Markup
+
+This module implements the markup language Mendoza uses for writing content.
+
+## Index
+
+@api-index[../../mendoza/markup]
+
+## Reference 
+
+@api-docs[../../mendoza/markup]
+

@@ -1,0 +1,18 @@
+{:title "Template Environment API"
+ :template "mdzdoc/main.html"
+ :author "Calvin Rose"
+ :topbar true
+ :order 1}
+---
+
+# Template Environment
+
+The template environment contains functions that are available from inside templates.
+
+## Index
+
+@api-index[../../mendoza/template-env]
+
+## Reference 
+
+@api-docs[../../mendoza/template-env]

@@ -1,5 +1,5 @@
 {:title "Templates"
- :template "blueblog/main.html"
+ :template "mdzdoc/main.html"
  :author "Calvin Rose"
  :topbar true
  :order 5}

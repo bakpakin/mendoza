@@ -1,10 +1,10 @@
 {:title "Mendoza"
- :template "blueblog/main.html"
+ :template "mdzdoc/main.html"
  :author "Calvin Rose"
  :topbar true
  :order 1}
 ---
-# Mendoza Overview
+## Overview
 
 Mendoza is a static site generator. It is a thin wrapper around the Janet programming language
 for templaing HTML, writing Markup, and developing a static website. The template and markup
@@ -18,10 +18,6 @@ to let us dictate form from the markup (via janet functions and macros) and from
 (templates can wrap nodes in HTML, and even call other janet functions to render markup in
 arbitrary ways. HTML, however, remains the sole intended output format.
 
-## API Reference
-
-@p{@link[/api.html]}
-
 ## Source Code
 
 @p{@link[https://github.com/bakpakin/mendoza]}
@@ -34,7 +30,6 @@ files required and templates are provided out of the box.
 Below is an equivalent of "Hello, World!" for mendoza. Put it in a file @code`content/index.mdz`
 and run @code`mdz` from the project directory to generate your site.
 
-@code`content/index.mdz`
 @codeblock```
 {:title "Hello, world!"
  :template "blueblog/main.html"
