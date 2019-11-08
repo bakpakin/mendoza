@@ -7,10 +7,7 @@
 
 (mdz/init)
 
-(def args
-  (if-let [e (dyn 'process/args)]
-    (array/slice (e :value) 0 1)
-    (dyn :args)))
+(def args (dyn :args))
 
 (def usage
   "Script usage."
@@ -41,7 +38,7 @@
 (case action
   "help" (print (args 0) usage)
   "version" (print mdz/version)
-  "clean" (mdz/clean (args 2))
-  "serve" (mdz/serve (args 2) (args 3) (args 4))
+  "clean" (mdz/clean (get args 2))
+  "serve" (mdz/serve (get args 2) (get args 3) (get args 4))
   "watch" (mdz/watch)
-  "build" (mdz/build (args 2) (args 3)))
+  "build" (mdz/build (get args 2) (get args 3)))
