@@ -107,10 +107,12 @@
   [id & args]
   (def prs (mapcat (fn [[k v]] [(string "data-" k) v]) (partition 2 args)))
   (def basetbl (table ;prs))
-  (merge basetbl {:tag "script"
-                  "src" (string "https://asciinema.org/a/" id ".js")
-                  "id" (string "asciicast-" id)
-                  "async" true}))
+  {:tag "div" "class" "asciinema-wrap"
+   :content 
+   (merge basetbl {:tag "script"
+                   "src" (string "https://asciinema.org/a/" id ".js")
+                   "id" (string "asciicast-" id)
+                   "async" true})})
 
 (import ./data/insta)
 (defn instagram
