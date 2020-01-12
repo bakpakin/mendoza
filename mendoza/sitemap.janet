@@ -9,8 +9,8 @@
 # Sort pages according to our order
 (defn- page-sorter
   [p1 p2]
-  (order< [(p1 :order) (p1 :title) (p1 :url)]
-          [(p2 :order) (p2 :title) (p2 :url)]))
+  (< [(p1 :order) (p1 :title) (p1 :url)]
+     [(p2 :order) (p2 :title) (p2 :url)]))
 
 (defn- insert-page
   [sitemap page frags]

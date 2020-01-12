@@ -9,8 +9,10 @@
 (def- base-env (require "./template-env"))
 (table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
 
-(defn- template
-  "Compile a bar template string into a function."
+(defn template
+  "Compile a bar template string into a function. Optionally
+  provide a location where the source is from to improve debugging. Returns
+  the template function."
   [source &opt where]
 
   (default where source)
@@ -103,6 +105,11 @@
       :error (error res)
       res)))
 
+(defn from-file
+  "Load a template from a file. Returns the template function."
+  [path]
+  (template (slurp path) path))
+
 #
 # Module loading
 #
@@ -110,7 +117,7 @@
 (defn- template-loader
   [x &]
   (with-dyns [:current-file x]
-    (wc/add (template (slurp x) x))))
+    (wc/add (from-file x))))
 
 (defn add-loader
   "Adds the custom template loader to Janet's module/loaders."
