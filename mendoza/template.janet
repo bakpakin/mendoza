@@ -7,7 +7,7 @@
 (import ./render :as render)
 
 (def- base-env (require "./template-env"))
-(table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
+(table/setproto base-env root-env)
 
 (defn template
   "Compile a bar template string into a function. Optionally

@@ -5,7 +5,7 @@
 
 (import ./watch-cache :as wc)
 (def- base-env (require "./markup-env"))
-(table/setproto base-env (table/getproto (fiber/getenv (fiber/current))))
+(table/setproto base-env root-env)
 
 (defn- capture-front
   "Capture the front matter"
