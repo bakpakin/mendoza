@@ -1,50 +1,35 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" href="blueblog-css/main.css" type="text/css" charset="utf-8">
-    <link rel="stylesheet" href="blueblog-css/syntax.css" type="text/css" charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="mdzdoc-css/main.css" type="text/css" charset="utf-8">
     <title>Templates</title>
+    <meta name="description" content="">
   </head>
   <body>
-    <div class="nice-back">
-      <div class="content-wrapper">
-        <div class="heading">
-          
-          <span class="head-span">
-            <a href="index.html">Mendoza</a>
-          </span>
-          
-          <span class="head-span">
-            <a href="markup-commands.html">Markup Commands</a>
-          </span>
-          
-          <span class="head-span">
-            <a href="markup.html">Markup</a>
-          </span>
-          
-          <span class="head-span">
-            <a href="syntax-highlighting.html">Highlighting</a>
-          </span>
-          
-          <span class="head-main">
-            <a href="templating.html">Templates</a>
-          </span>
-          
-          <span class="head-span">
-            <a href="static-content.html">Static Content</a>
-          </span>
-          
-          <span class="head-span">
-            <a href="api.html">Mendoza API</a>
-          </span>
-          
-        </div>
-      </div>
+    <!-- Toggles Navigation -->
+    <div id="toc-toggle" class="">
+      <div class="bar topbar"></div>
+      <div class="bar"></div>
+      <div class="bar botbar"></div>
     </div>
-    <hr>
-    <div class="content-wrapper">
-      <div class="inner-wrapper">
+    <div class="twocol">
+      <div class="toc toc-hidden">
+        <ul>
+          <li><span><a href="index.html">Mendoza</a></span></li><li><span><a href="markup-commands.html">Markup Commands</a></span></li><li><span><a href="markup.html">Markup</a></span></li><li><span><a href="syntax-highlighting.html">Highlighting</a></span></li><li><span class="selected"><a href="templating.html">Templates</a></span></li><li><span><a href="static-content.html">Static Content</a></span></li><li class="caret"><span><a href="api/index.html">Mendoza API</a></span><ul><li><span><a href="api/markup.html">Markup API</a></span></li><li><span><a href="api/template-env.html">Template Environment API</a></span></li><li><span><a href="api/markup-env.html">Markup Environment API</a></span></li><li><span><a href="api/render.html">Render API</a></span></li><li><span><a href="api/template.html">Template API</a></span></li></ul></li>
+        </ul>
+      </div>
+      <div class="content-wrapper">
+        <h1>Templates</h1>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="syntax-highlighting.html"><span class="prevnext-text">Highlighting</span></a></span>
+          <span class="next"><a href="static-content.html"><span class="prevnext-text">Static Content</span></a></span>
+        </div>
         
 <h1>Templates
 </h1>
@@ -160,13 +145,33 @@ own or serve as good starting points for your own templates.
 </p>
 <ul><li>blueblog/main.html</li>
     <li>simple/main.html</li></ul>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="syntax-highlighting.html"><span class="prevnext-text">Highlighting</span></a></span>
+          <span class="next"><a href="static-content.html"><span class="prevnext-text">Static Content</span></a></span>
+        </div>
       </div>
     </div>
-    <div class="pre-footer">
-      <hr>
-    </div>
+    <script charset="utf-8">
+      function toggleToc() {
+        var toggler = document.getElementById('toc-toggle');
+        var wrapper = document.querySelector('.toc');
+        wrapper.classList.toggle('toc-hidden');
+        toggler.classList.toggle('open');
+        window.localStorage.setItem('show-toc', toggler.classList.contains('open'));
+      }
+      function addTocToggle() {
+        var el = document.getElementById('toc-toggle');
+        el.addEventListener('click', toggleToc);
+      }
+      window.addEventListener('DOMContentLoaded', addTocToggle);
+      if (window.localStorage.getItem('show-toc') === 'true') {
+        toggleToc()
+      }
+    </script>
     <footer>
-      Copyright &copy; Calvin Rose 2019
+      <div class="content-wrapper">
+        Copyright &copy; Calvin Rose 2020
+      </div>
     </footer>
   </body>
 </html>

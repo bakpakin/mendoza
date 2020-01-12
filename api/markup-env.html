@@ -1,0 +1,74 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="../mdzdoc-css/main.css" type="text/css" charset="utf-8">
+    <title>Markup Environment API</title>
+    <meta name="description" content="">
+  </head>
+  <body>
+    <!-- Toggles Navigation -->
+    <div id="toc-toggle" class="">
+      <div class="bar topbar"></div>
+      <div class="bar"></div>
+      <div class="bar botbar"></div>
+    </div>
+    <div class="twocol">
+      <div class="toc toc-hidden">
+        <ul>
+          <li><span><a href="../index.html">Mendoza</a></span></li><li><span><a href="../markup-commands.html">Markup Commands</a></span></li><li><span><a href="../markup.html">Markup</a></span></li><li><span><a href="../syntax-highlighting.html">Highlighting</a></span></li><li><span><a href="../templating.html">Templates</a></span></li><li><span><a href="../static-content.html">Static Content</a></span></li><li class="caret"><span><a href="index.html">Mendoza API</a></span><ul><li><span><a href="markup.html">Markup API</a></span></li><li><span><a href="template-env.html">Template Environment API</a></span></li><li><span class="selected"><a href="markup-env.html">Markup Environment API</a></span></li><li><span><a href="render.html">Render API</a></span></li><li><span><a href="template.html">Template API</a></span></li></ul></li>
+        </ul>
+      </div>
+      <div class="content-wrapper">
+        <h1>Markup Environment API</h1>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="template-env.html"><span class="prevnext-text">Template Environment API</span></a></span>
+          <span class="next"><a href="render.html"><span class="prevnext-text">Render API</span></a></span>
+        </div>
+        
+
+<h1>Markup Environment
+</h1>
+<p>The markup environment are the functions and macros available inside a .mdz file. While
+you can import other modules, these forms are made available by default.
+</p>
+<h2>Index
+</h2>
+<p><a href="#anchor">anchor</a><span class="divider"> </span><a href="#api-docs">api-docs</a><span class="divider"> </span><a href="#api-index">api-index</a><span class="divider"> </span><a href="#asciinema">asciinema</a><span class="divider"> </span><a href="#bigger">bigger</a><span class="divider"> </span><a href="#blockquote">blockquote</a><span class="divider"> </span><a href="#center">center</a><span class="divider"> </span><a href="#code">code</a><span class="divider"> </span><a href="#codeblock">codeblock</a><span class="divider"> </span><a href="#gist">gist</a><span class="divider"> </span><a href="#hr">hr</a><span class="divider"> </span><a href="#html">html</a><span class="divider"> </span><a href="#image">image</a><span class="divider"> </span><a href="#instagram">instagram</a><span class="divider"> </span><a href="#link">link</a><span class="divider"> </span><a href="#section">section</a><span class="divider"> </span><a href="#smaller">smaller</a><span class="divider"> </span><a href="#tag">tag</a><span class="divider"> </span><a href="#vimeo">vimeo</a><span class="divider"> </span><a href="#youtube">youtube</a></p><h2>Reference 
+</h2>
+<div class="docstring"><div class="binding-wrap"><span class="binding"><a id="anchor">anchor</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 29, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">anchor</span> <span class="mdzsyn-symbol">name</span> <span class="mdzsyn-symbol">&amp;</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p>Create an in-page anchor for a local link.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="api-docs">api-docs</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 174, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">api-docs</span> <span class="mdzsyn-symbol">module</span> <span class="mdzsyn-symbol">&amp;opt</span> <span class="mdzsyn-symbol">prefix</span>)</code></pre><p>Generate docs for a given module. Returns a node.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="api-index">api-index</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 185, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">api-index</span> <span class="mdzsyn-symbol">module</span> <span class="mdzsyn-symbol">&amp;opt</span> <span class="mdzsyn-symbol">prefix</span>)</code></pre><p>Generate an index for the given docs.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="asciinema">asciinema</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 105, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">asciinema</span> <span class="mdzsyn-symbol">id</span> <span class="mdzsyn-symbol">&amp;</span> <span class="mdzsyn-symbol">args</span>)</code></pre><p>Embed an asciinema video into your site</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="bigger">bigger</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 25, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">bigger</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p></p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="blockquote">blockquote</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 56, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">blockquote</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p>Define a block quote</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="center">center</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 65, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">center</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p>Center some content</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="code">code</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 27, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">code</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p></p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="codeblock">codeblock</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 34, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">codeblock</span> <span class="mdzsyn-symbol">lang</span> <span class="mdzsyn-symbol">&amp;opt</span> <span class="mdzsyn-symbol">source</span>)</code></pre><p>Inline code or codeblock</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="gist">gist</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 99, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">gist</span> <span class="mdzsyn-symbol">user-and-id</span>)</code></pre><p>Embed a github gist</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="hr">hr</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 20, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">hr</span>)</code></pre><p>Add a horizontal rule</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="html">html</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 70, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">html</span> <span class="mdzsyn-symbol">source</span>)</code></pre><p>Embed some raw html</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="image">image</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 61, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">image</span> <span class="mdzsyn-symbol">src</span> <span class="mdzsyn-symbol">alt</span>)</code></pre><p></p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="instagram">instagram</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 118, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">instagram</span> <span class="mdzsyn-symbol">id</span>)</code></pre><p>Add an instagram link in the page</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="link">link</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 45, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">link</span> <span class="mdzsyn-symbol">url</span> <span class="mdzsyn-symbol">&amp;opt</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p>Create an anchor link</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="section">section</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 50, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">section</span> <span class="mdzsyn-symbol">name</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p>Create a section. Usually used to embed different parts of the content  document into different parts of the main page.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="smaller">smaller</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 26, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">smaller</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p></p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="tag">tag</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 14, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">tag</span> <span class="mdzsyn-symbol">name</span> <span class="mdzsyn-symbol">content</span>)</code></pre><p>Wrap some content in an html tag. If you need attributes or other properties,  you may want to use raw HTML via the html function.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="vimeo">vimeo</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 87, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">vimeo</span> <span class="mdzsyn-symbol">id</span>)</code></pre><p>Add an embedded vimeo video in the page</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="youtube">youtube</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup-env.janet at line 75, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">youtube</span> <span class="mdzsyn-symbol">id</span>)</code></pre><p>Add an embedded youtube video in the page</p></div>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="template-env.html"><span class="prevnext-text">Template Environment API</span></a></span>
+          <span class="next"><a href="render.html"><span class="prevnext-text">Render API</span></a></span>
+        </div>
+      </div>
+    </div>
+    <script charset="utf-8">
+      function toggleToc() {
+        var toggler = document.getElementById('toc-toggle');
+        var wrapper = document.querySelector('.toc');
+        wrapper.classList.toggle('toc-hidden');
+        toggler.classList.toggle('open');
+        window.localStorage.setItem('show-toc', toggler.classList.contains('open'));
+      }
+      function addTocToggle() {
+        var el = document.getElementById('toc-toggle');
+        el.addEventListener('click', toggleToc);
+      }
+      window.addEventListener('DOMContentLoaded', addTocToggle);
+      if (window.localStorage.getItem('show-toc') === 'true') {
+        toggleToc()
+      }
+    </script>
+    <footer>
+      <div class="content-wrapper">
+        Copyright &copy; Calvin Rose 2020
+      </div>
+    </footer>
+  </body>
+</html>

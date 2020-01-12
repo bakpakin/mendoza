@@ -1,0 +1,73 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="../mdzdoc-css/main.css" type="text/css" charset="utf-8">
+    <title>Template Environment API</title>
+    <meta name="description" content="">
+  </head>
+  <body>
+    <!-- Toggles Navigation -->
+    <div id="toc-toggle" class="">
+      <div class="bar topbar"></div>
+      <div class="bar"></div>
+      <div class="bar botbar"></div>
+    </div>
+    <div class="twocol">
+      <div class="toc toc-hidden">
+        <ul>
+          <li><span><a href="../index.html">Mendoza</a></span></li><li><span><a href="../markup-commands.html">Markup Commands</a></span></li><li><span><a href="../markup.html">Markup</a></span></li><li><span><a href="../syntax-highlighting.html">Highlighting</a></span></li><li><span><a href="../templating.html">Templates</a></span></li><li><span><a href="../static-content.html">Static Content</a></span></li><li class="caret"><span><a href="index.html">Mendoza API</a></span><ul><li><span><a href="markup.html">Markup API</a></span></li><li><span class="selected"><a href="template-env.html">Template Environment API</a></span></li><li><span><a href="markup-env.html">Markup Environment API</a></span></li><li><span><a href="render.html">Render API</a></span></li><li><span><a href="template.html">Template API</a></span></li></ul></li>
+        </ul>
+      </div>
+      <div class="content-wrapper">
+        <h1>Template Environment API</h1>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="markup.html"><span class="prevnext-text">Markup API</span></a></span>
+          <span class="next"><a href="markup-env.html"><span class="prevnext-text">Markup Environment API</span></a></span>
+        </div>
+        
+
+<h1>Template Environment
+</h1>
+<p>The template environment contains functions that are available from inside templates.
+</p>
+<h2>Index
+</h2>
+<p><a href="#dom-find">dom-find</a><span class="divider"> </span><a href="#find-section">find-section</a><span class="divider"> </span><a href="#find-tag">find-tag</a><span class="divider"> </span><a href="#relative-url">relative-url</a><span class="divider"> </span><a href="#static-file">static-file</a></p><h2>Reference 
+</h2>
+<div class="docstring"><div class="binding-wrap"><span class="binding"><a id="dom-find">dom-find</a></span><span class="binding-type">function</span><div class="source-map">mendoza/template-env.janet at line 23, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">dom-find</span> <span class="mdzsyn-symbol">pred</span> <span class="mdzsyn-symbol">root</span>)</code></pre><p>Find the first element in a depth first traversal of the DOM  that satisfies a given predicate.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="find-section">find-section</a></span><span class="binding-type">function</span><div class="source-map">mendoza/template-env.janet at line 44, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">find-section</span> <span class="mdzsyn-symbol">name</span> <span class="mdzsyn-symbol">root</span>)</code></pre><p>Find a given section name to insert into the document.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="find-tag">find-tag</a></span><span class="binding-type">function</span><div class="source-map">mendoza/template-env.janet at line 35, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">find-tag</span> <span class="mdzsyn-symbol">tag</span> <span class="mdzsyn-symbol">root</span>)</code></pre><p>Find the first instance of a given tag</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="relative-url">relative-url</a></span><span class="binding-type">function</span><div class="source-map">mendoza/template-env.janet at line 55, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">relative-url</span> <span class="mdzsyn-symbol">url</span>)</code></pre><p>Express a url relative to (dyn :url). The given url should  be absolute from the site root, like /index.html.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="static-file">static-file</a></span><span class="binding-type">function</span><div class="source-map">mendoza/template-env.janet at line 49, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">static-file</span> <span class="mdzsyn-symbol">src</span> <span class="mdzsyn-symbol">&amp;opt</span> <span class="mdzsyn-symbol">dest</span>)</code></pre><p>Make sure a static file is available in the generated site</p></div>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="markup.html"><span class="prevnext-text">Markup API</span></a></span>
+          <span class="next"><a href="markup-env.html"><span class="prevnext-text">Markup Environment API</span></a></span>
+        </div>
+      </div>
+    </div>
+    <script charset="utf-8">
+      function toggleToc() {
+        var toggler = document.getElementById('toc-toggle');
+        var wrapper = document.querySelector('.toc');
+        wrapper.classList.toggle('toc-hidden');
+        toggler.classList.toggle('open');
+        window.localStorage.setItem('show-toc', toggler.classList.contains('open'));
+      }
+      function addTocToggle() {
+        var el = document.getElementById('toc-toggle');
+        el.addEventListener('click', toggleToc);
+      }
+      window.addEventListener('DOMContentLoaded', addTocToggle);
+      if (window.localStorage.getItem('show-toc') === 'true') {
+        toggleToc()
+      }
+    </script>
+    <footer>
+      <div class="content-wrapper">
+        Copyright &copy; Calvin Rose 2020
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="../mdzdoc-css/main.css" type="text/css" charset="utf-8">
+    <title>Markup API</title>
+    <meta name="description" content="">
+  </head>
+  <body>
+    <!-- Toggles Navigation -->
+    <div id="toc-toggle" class="">
+      <div class="bar topbar"></div>
+      <div class="bar"></div>
+      <div class="bar botbar"></div>
+    </div>
+    <div class="twocol">
+      <div class="toc toc-hidden">
+        <ul>
+          <li><span><a href="../index.html">Mendoza</a></span></li><li><span><a href="../markup-commands.html">Markup Commands</a></span></li><li><span><a href="../markup.html">Markup</a></span></li><li><span><a href="../syntax-highlighting.html">Highlighting</a></span></li><li><span><a href="../templating.html">Templates</a></span></li><li><span><a href="../static-content.html">Static Content</a></span></li><li class="caret"><span><a href="index.html">Mendoza API</a></span><ul><li><span class="selected"><a href="markup.html">Markup API</a></span></li><li><span><a href="template-env.html">Template Environment API</a></span></li><li><span><a href="markup-env.html">Markup Environment API</a></span></li><li><span><a href="render.html">Render API</a></span></li><li><span><a href="template.html">Template API</a></span></li></ul></li>
+        </ul>
+      </div>
+      <div class="content-wrapper">
+        <h1>Markup API</h1>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="index.html"><span class="prevnext-text">Mendoza API</span></a></span>
+          <span class="next"><a href="template-env.html"><span class="prevnext-text">Template Environment API</span></a></span>
+        </div>
+        
+
+<h1>Markup
+</h1>
+<p>This module implements the markup language Mendoza uses for writing content.
+</p>
+<h2>Index
+</h2>
+<p><a href="#add-loader">add-loader</a><span class="divider"> </span><a href="#markup">markup</a></p><h2>Reference 
+</h2>
+<div class="docstring"><div class="binding-wrap"><span class="binding"><a id="add-loader">add-loader</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup.janet at line 157, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">add-loader</span>)</code></pre><p>Adds the custom markup loader to Janet's module/loaders.</p></div><div class="docstring"><div class="binding-wrap"><span class="binding"><a id="markup">markup</a></span><span class="binding-type">function</span><div class="source-map">mendoza/markup.janet at line 131, column 1</div></div><pre class="mendoza-codeblock"><code data-language="janet">(<span class="mdzsyn-symbol">markup</span> <span class="mdzsyn-symbol">source</span>)</code></pre><p>Parse mendoza markup and evaluate it returning a document tree.</p></div>
+        <div class="prevnext-bar">
+          <span class="prev"><a href="index.html"><span class="prevnext-text">Mendoza API</span></a></span>
+          <span class="next"><a href="template-env.html"><span class="prevnext-text">Template Environment API</span></a></span>
+        </div>
+      </div>
+    </div>
+    <script charset="utf-8">
+      function toggleToc() {
+        var toggler = document.getElementById('toc-toggle');
+        var wrapper = document.querySelector('.toc');
+        wrapper.classList.toggle('toc-hidden');
+        toggler.classList.toggle('open');
+        window.localStorage.setItem('show-toc', toggler.classList.contains('open'));
+      }
+      function addTocToggle() {
+        var el = document.getElementById('toc-toggle');
+        el.addEventListener('click', toggleToc);
+      }
+      window.addEventListener('DOMContentLoaded', addTocToggle);
+      if (window.localStorage.getItem('show-toc') === 'true') {
+        toggleToc()
+      }
+    </script>
+    <footer>
+      <div class="content-wrapper">
+        Copyright &copy; Calvin Rose 2020
+      </div>
+    </footer>
+  </body>
+</html>
