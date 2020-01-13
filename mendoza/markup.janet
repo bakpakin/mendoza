@@ -142,10 +142,13 @@
   (defn do-contents []
       (loop [ast :in (tuple/slice front-matter 0 -2)]
         (eval ast))
-      (def matter (eval (last front-matter)))
-      (merge matter
-             {:content (seq [ast :in (tuple/slice matches 1)]
-                            (eval ast))}))
+      (def matter
+        (merge (eval (last front-matter))
+               {:content (seq [ast :in (tuple/slice matches 1)]
+                              (eval ast))}))
+      (def template (matter :template))
+      (when (bytes? template))
+        (put matter :template (require (string template))))
   (def f (fiber/new do-contents :))
   (fiber/setenv f env)
   (resume f))
@@ -157,7 +160,7 @@
 (defn add-loader
   "Adds the custom markup loader to Janet's module/loaders."
   []
-  (put module/loaders :mendoza-markup (fn [x &] 
+  (put module/loaders :mendoza-markup (fn [x &]
                                         (with-dyns [:current-file x]
                                           (wc/add (markup (slurp x))))))
   (array/insert module/paths 0 [":all:" :mendoza-markup ".mdz"])

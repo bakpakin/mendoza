@@ -36,11 +36,12 @@
   [lang &opt source]
   (def source2 (or source lang))
   (def lang2 (if source lang nil))
+  (def highlighter (if lang2 (require (string lang2 ".syntax"))))
   {:tag "pre" 
    "class" "mendoza-codeblock"
    :content {:tag "code"
              :content source2
-             :language lang2
+             :language highlighter
              "data-language" lang2}})
 (defn link
   "Create an anchor link"

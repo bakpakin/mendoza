@@ -60,10 +60,10 @@
       # syntax highlighting
       (if-let [lang (node :language)]
         (let [content (node :content)
-              matches (peg/match (require (string lang ".syntax")) content)]
+              matches (peg/match lang content)]
           (highlight-genhtml buf matches))
         (if-let [temp (node :template)]
-          ((require temp) buf)
+          (temp buf)
           (render (node :content) buf)))
 
       # Literals
