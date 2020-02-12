@@ -115,13 +115,13 @@
                    "id" (string "asciicast-" id)
                    "async" true})})
 
-(import ./data/insta)
+(import ./data/insta :as insta)
 (defn instagram
   "Add an instagram link in the page"
   [id]
   {:tag "div"
    "class" "mendoza-video"
-   :content {:no-escape (string/replace "!!!!!" (string id) ./data/insta/html)}})
+   :content {:no-escape (string/replace "!!!!!" (string id) insta/html)}})
 
 # Documentation generation
 
