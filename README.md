@@ -9,7 +9,7 @@ are then rendered to HTML after going through custom transformations.
 
 ## Why?
 
-Mendoza is a tool for authoring content to produce high qulity static
+Mendoza is a tool for authoring content to produce high quality static
 HTML websites. It uses the Janet programming language and a derived
 markup language to make authoring content fast but flexible. It aims
 to be easy to set up straight out of the box with Janet, and used for
