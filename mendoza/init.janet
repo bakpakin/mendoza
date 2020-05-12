@@ -46,9 +46,10 @@
 
 (defn- page-get-url
   "Get the output url for a dom"
-  [page]
+  [lead page]
+  (def front-trim (length lead))
   (def o (page :url))
-  (or o (string (string/slice (page :input) 7 -5) ".html")))
+  (or o (string (string/slice (page :input) front-trim -5) ".html")))
 
 (defn- rimraf
   "Remove a directory and all sub directories."
@@ -114,15 +115,16 @@
 
   # Read in pages
   (def pages @[])
-  (defn read-pages [path]
+  (defn read-pages [root &opt path]
+    (default path root)
     (case (os/stat path :mode)
       :directory (each f (sort (os/dir path))
-                   (read-pages (string path "/" f)))
-      :file (when (= ".mdz" (string/slice path -5))
+                   (read-pages root (string path "/" f)))
+      :file (when (and (> (length path) 3) (= ".mdz" (string/slice path -5)))
               (print "Parsing content " path " as mendoza markup")
               (def page (require path))
               (put page :input path)
-              (put page :url (page-get-url page))
+              (put page :url (page-get-url root page))
               (array/push pages page))))
   (read-pages "content")
   (read-pages "doc")
@@ -165,7 +167,7 @@
 
   # Check which directories exist
   (def watched-dirs @"")
-  (each path ["static" "templates" "syntax" "mendoza/syntax" "content"]
+  (each path ["static" "templates" "syntax" "mendoza/syntax" "content" "doc"]
     (if (os/stat path :mode)
       (buffer/push-string watched-dirs path " ")))
 
