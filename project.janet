@@ -8,7 +8,8 @@
   :dependencies ["http://github.com/janet-lang/circlet.git"])
 
 (declare-binscript
-  :main "mdz")
+  :main "mdz"
+  :hardcode-syspath true)
 
 (declare-source
   :source ["mendoza"])
