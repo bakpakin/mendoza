@@ -18,13 +18,13 @@
     build              - Create the static site in the 'site' directory
      [site="site"]     -- output directory for site
      [root="/"]        -- url path that site expects to be under on the server
-    clean              - Destory the static site directory
+    clean              - Destroy the static site directory
      [site="site"]     -- output directory from a previous build
     serve              - Serves current site. Uses circlet to serve.
      [port=8000]       -- optional port
      [host=127.0.0.1]  -- optional host
      [site="site"]     -- output directory to serve from
-    watch              - Watch files and rebuild if any change.
+    watch              - Watch files and rebuild on any change.
     version            - Print the mendoza version
 ```)
 
