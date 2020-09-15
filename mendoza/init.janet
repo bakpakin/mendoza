@@ -90,12 +90,12 @@
   (default site "site")
   (let [port ((if (string? port) scan-number identity) port)]
     (circlet/server
-     (->
-       {:default {:kind :static
-                  :root site}}
-       circlet/router
-       circlet/logger)
-     port host)))
+      (->
+        {:default {:kind :static
+                   :root site}}
+        circlet/router
+        circlet/logger)
+      port host)))
 
 # re-export render
 (setdyn 'render (dyn 'render/render))
@@ -123,6 +123,7 @@
       :file (when (and (> (length path) 3) (= ".mdz" (string/slice path -5)))
               (print "Parsing content " path " as mendoza markup")
               (def page (require path))
+              (assert page (string "Could not parse " path ". Probably missing :template in the frontmatter?"))
               (put page :input path)
               (put page :url (page-get-url root page))
               (array/push pages page))))
