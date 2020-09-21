@@ -148,7 +148,7 @@
                               (eval ast))}))
       (def template (matter :template))
       (when (bytes? template)
-        (put matter :template (require (string template)))))
+        (put matter :template (string template))))
   (def f (fiber/new do-contents :))
   (fiber/setenv f env)
   (resume f))

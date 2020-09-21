@@ -63,9 +63,7 @@
               matches (peg/match lang content)]
           (highlight-genhtml buf matches))
         (if-let [temp (node :template)]
-          (if (string? temp)
-            ((require temp) buf)
-            (temp buf))
+          ((require temp) buf)
           (render (node :content) buf)))
 
       # Literals
