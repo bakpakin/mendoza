@@ -141,4 +141,5 @@ Mendoza comes with a few built in templates. They should work well on their
 own or serve as good starting points for your own templates.
 
 @ul{@li{blueblog/main.html}
-    @li{simple/main.html}}
+    @li{simple/main.html}
+    @li{mzdoc/main.html}}
