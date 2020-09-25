@@ -91,7 +91,6 @@
               (def sitemap (dyn :sitemap))
               (def url (dyn :url))
               (def content (dyn :content))
-              (defn template-include [temp] {:template (require temp)})
               ,;forms
               ,bufsym))
 

@@ -52,19 +52,20 @@ your content markup will be exposed in the template as the @code`content` bindin
 Use of double curly braces in a template substitutes a node of the document graph in the final output.
 @code`node` must be a Janet expression that will be rendered and spliced into the output file. @code`node`
 will usually be either a string or a nested table, representing a DOM node that will be rendered by @code`mendoza/render`.
-You can also include other templates with the @code`template-include` fn in the node.
+You can also include other templates with the @code`{:template (require
+"template.html")}` fn in the node.
 
 @codeblock[html]```
 <!doctype html>
 <html>
   <head>
-    {{ (template-include "mytemplate/head.html") }}
+    {{ {:template (require "mytemplate/head.html")} }}
   </head>
   <body>
     {{ content }}
   </body>
   <footer>
-    {{ (template-include "mytemplate/footer.html) }}
+    {{ {:template (require "mytemplate/footer.html")} }}
   </footer>
 </html>
 ```
