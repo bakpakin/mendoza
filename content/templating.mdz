@@ -108,7 +108,7 @@ be included in the output html.
 <html>
   <body>
       <pre>
-        {{ (janet/encode (range 100)) }}
+        {{ (json/encode (range 100)) }}
       </pre>
   </body>
 </html>
