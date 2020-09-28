@@ -53,7 +53,7 @@ Use of double curly braces in a template substitutes a node of the document grap
 @code`node` must be a Janet expression that will be rendered and spliced into the output file. @code`node`
 will usually be either a string or a nested table, representing a DOM node that will be rendered by @code`mendoza/render`.
 You can also include other templates with the @code`{:template (require
-"template.html")}` fn in the node.
+"template.html")}` in the node.
 
 @codeblock[html]```
 <!doctype html>
