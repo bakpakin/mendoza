@@ -72,7 +72,10 @@
 
 (defn- caph [n & content]
   {:tag (string "h" (length n)) :content
-   (array/slice content)})
+   (array/slice content)
+   "id" (when-let [cand (first content)]
+          (when (string? cand)
+            (string/replace-all " " "" (string/trim cand))))})
 
 (def- markup-grammar
   "Grammar for markdown -> document AST parser."
