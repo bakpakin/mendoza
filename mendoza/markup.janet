@@ -70,7 +70,7 @@
   (unless (empty? content)
     {:tag "p" :content (array/slice content)}))
 
-(var id-tbl @{})
+(def id-tbl @{})
 
 (defn- caph [n & content]
   {:tag (string "h" (length n)) :content
