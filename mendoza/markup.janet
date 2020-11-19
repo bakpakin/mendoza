@@ -70,9 +70,21 @@
   (unless (empty? content)
     {:tag "p" :content (array/slice content)}))
 
+(def id-tbl @{})
+
 (defn- caph [n & content]
   {:tag (string "h" (length n)) :content
-   (array/slice content)})
+   (array/slice content)
+   "id" (when-let [cand (first content)]
+          (when (string? cand)
+            (let [norm-name (string/replace-all " " "-" (string/trim cand))]
+              (if-let [cnt (get id-tbl norm-name)]
+                (do
+                  (put id-tbl norm-name (inc cnt))
+                  (string norm-name "-" cnt))
+                (do
+                  (put id-tbl norm-name 0)
+                  norm-name)))))})
 
 (def- markup-grammar
   "Grammar for markdown -> document AST parser."
