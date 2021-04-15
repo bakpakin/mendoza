@@ -180,7 +180,22 @@
                (:flush stdout)
                (debug/stacktrace f res))))
   (rebuild)
-  (def cmd (string "inotifywait -m -r " watched-dirs "-e modify"))
+  # Detect if inotify is present
+  (defn command-possible [command]
+    # watch runs on linux and mac at least
+    # detection is not a solution for windows
+    # fswatch technically can run on windows however
+    (def proc (file/popen (string "which " command)))
+    (if (not proc) false
+      (let [result (:read proc :line)]
+        (file/close proc)
+        (and result (not (string/has-suffix? "not found\n" result))))))
+  # Choose command
+  (def cmd
+    (cond
+      (command-possible "inotifywait") (string "inotifywait -m -r " watched-dirs "-e modify")
+      (command-possible "fswatch") (string "fswatch -r --one-per-batch " watched-dirs)
+      (error "inotifywait, fswatch not available, cannot perform watch.")))
   (def proc (file/popen cmd :r))
   (if (not proc) (error (string "could not run " (describe cmd))))
   (while true
