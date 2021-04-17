@@ -27,7 +27,7 @@ Centers some rich content in the output document.
 
 ### @code(`@codeblock[...]`)
 
-See @link[/syntax-highlighting.html]{Syntax Highlighting}
+See @link[/mendoza/syntax-highlighting.html]{Syntax Highlighting}
 
 ### @code(`@bigger{...}, @smaller{...}`)
 
