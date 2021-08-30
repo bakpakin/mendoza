@@ -9,16 +9,18 @@
 
 (def- core-env (table/getproto (fiber/getenv (fiber/current))))
 (def- specials {'fn true
-               'var true
-               'do true
-               'while true
-               'def true
-               'splice true
-               'set true
-               'unquote true
-               'quasiquote true
-               'quote true
-               'if true})
+                'var true
+                'do true
+                'while true
+                'def true
+                'splice true
+                'set true
+                'unquote true
+                'quasiquote true
+                'quote true
+                'if true
+                'break true
+                'upscope true})
 
 (defn- check-number [text] (and (scan-number text) text))
 
@@ -61,5 +63,5 @@
     :struct (* '"{" :root2 (+ '"}" (error "")))
     :parray (* '"@" :ptuple)
     :barray (* '"@" :btuple)
-    :dict (* '"@"  :struct)
+    :dict (* '"@" :struct)
     :main (+ :root (error ""))})
