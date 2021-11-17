@@ -34,7 +34,11 @@ more information on this. Use the latest version from git, please.
 
 ### Global Installation
 
-Run `[sudo] jpm install https://github.com/bakpakin/mendoza.git` script to install on to your machine. The `mdz`
+Run
+
+    [sudo] jpm install mendoza
+
+to install on to your machine. The `mdz`
 executable will now be on your path, so you can run commands such as `mdz
 build` to generate your site in any directory.
 
