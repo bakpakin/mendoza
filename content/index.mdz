@@ -12,8 +12,8 @@ languages are both Janet DSLs, or dialects, so can used ordinary Janet functions
 
 With inspiration from @link[https://docs.racket-lang.org/scribble/]{Scribble},
 we are using a macro system which expands the entire document into a Janet data structure, and
-then calls @code[eval] on that data structure to genereate a document. That document is then
-rendered into HTML, with each node having an optional bar template. This design is flexible enough
+then calls @code[eval] on that data structure to generate a document. That document is then
+rendered into HTML, with each node having an optional template. This design is flexible enough
 to let us dictate form from the markup (via janet functions and macros) and from the templates
 (templates can wrap nodes in HTML, and even call other janet functions to render markup in
 arbitrary ways. HTML, however, remains the sole intended output format.
