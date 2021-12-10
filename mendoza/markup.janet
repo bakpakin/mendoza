@@ -147,8 +147,8 @@
                {:content (seq [ast :in (tuple/slice matches 1)]
                               (eval ast))}))
       (def template (matter :template))
-      (when (bytes? template))
-        (put matter :template (require (string template))))
+      (when (bytes? template)
+        (put matter :template (require (string template)))))
   (def f (fiber/new do-contents :))
   (fiber/setenv f env)
   (resume f))
