@@ -37,7 +37,7 @@
   (def source2 (or source lang))
   (def lang2 (if source lang nil))
   (def highlighter (if lang2 (require (string lang2 ".syntax"))))
-  {:tag "pre" 
+  {:tag "pre"
    "class" "mendoza-codeblock"
    :content {:tag "code"
              :content source2
@@ -73,7 +73,7 @@
   [source]
   {:no-escape source})
 
-(defn youtube 
+(defn youtube
   "Add an embedded youtube video in the page"
   [id]
   {:tag "iframe"
@@ -109,7 +109,7 @@
   (def prs (mapcat (fn [[k v]] [(string "data-" k) v]) (partition 2 args)))
   (def basetbl (table ;prs))
   {:tag "div" "class" "asciinema-wrap"
-   :content 
+   :content
    (merge basetbl {:tag "script"
                    "src" (string "https://asciinema.org/a/" id ".js")
                    "id" (string "asciicast-" id)
@@ -128,9 +128,9 @@
 (def- docstring-peg-source
   "Convert a docstring into a dom node."
   ~{:ws (set " \t\r\n\0\f")
-    :funcdef (* (any :ws) 
+    :funcdef (* (any :ws)
                 (/ '(* "(" (any (if-not ")" 1)) ")")
-                  ,|(codeblock "janet" $))
+                   ,|(codeblock "janet" $))
                 "\n\n")
     :br (* "\n\n" (constant {:tag "br" :no-close true}))
     :li (* "\t" (/ '(any (if-not "\n" 1)) ,|{:tag "li" :content $}))
@@ -181,16 +181,16 @@
         :when (symbol? k)
         :when (or (not prefix) (string/has-prefix? prefix k))
         :when (and (get entry :doc) (not (get entry :private)))]
-       (emit-item k entry)))
+    (emit-item k entry)))
 
 (defn api-index
   "Generate an index for the given docs."
   [module &opt prefix]
   (def env (if (string? module) (require module) module))
   (def items (seq [[k entry]
-        :in (sort (pairs env))
-        :when (symbol? k)
-        :when (or (not prefix) (string/has-prefix? prefix k))
-        :when (and (get entry :doc) (not (get entry :private)))]
-    {:tag "a" "href" (string "#" k) :content (string k)}))              
+                   :in (sort (pairs env))
+                   :when (symbol? k)
+                   :when (or (not prefix) (string/has-prefix? prefix k))
+                   :when (and (get entry :doc) (not (get entry :private)))]
+               {:tag "a" "href" (string "#" k) :content (string k)}))
   {:tag "p" :content (interpose {:tag "span" :content " " "class" "divider"} items)})
