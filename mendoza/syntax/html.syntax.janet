@@ -14,8 +14,8 @@
     :close (* '"</" ':ws :tagname ':ws '">")
     :tag (* :open :root (+ :close (error "missing tag")))
     :no-closers '(+ "br" "meta" "input" "hr" "img" "area" "base" "col"
-                   "command" "embed" "keygen" "link" "param" "source"
-                   "track" "wbr")
+                    "command" "embed" "keygen" "link" "param" "source"
+                    "track" "wbr")
     :singleton (* '"<" ':ws (/ :no-closers ,(syntax/span :keyword)) :attributes '">")
     :openclose (* '"<" ':ws :tagname :attributes '"/>")
     :comment (/ '(* "<!--" (if-not "-->" 1) "-->") ,(syntax/span :comment))
@@ -34,5 +34,5 @@
                    ,(fn [x p] (string "unmatched character "
                                       (describe x)
                                       " at byte " p))))
-    :root (any (+ :prefix :normal-text :html-escape :singleton :tag :comment :openclose ))
+    :root (any (+ :prefix :normal-text :html-escape :singleton :tag :comment :openclose))
     :main (* ':ws :root (+ -1 :err))})

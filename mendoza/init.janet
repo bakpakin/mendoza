@@ -90,12 +90,12 @@
   (default site "site")
   (let [port ((if (string? port) scan-number identity) port)]
     (circlet/server
-     (->
-       {:default {:kind :static
-                  :root site}}
-       circlet/router
-       circlet/logger)
-     port host)))
+      (->
+        {:default {:kind :static
+                   :root site}}
+        circlet/router
+        circlet/logger)
+      port host)))
 
 # re-export render
 (setdyn 'render (dyn 'render/render))

@@ -43,7 +43,7 @@
 (defn add-loader
   "Adds the custom syntax loader to Janet's module/loaders."
   []
-  (defn loader [x args] 
+  (defn loader [x args]
     (print "Loading syntax " x)
     (def env ((module/loaders :source) x args))
     (def grammar ((env 'grammar) :value))

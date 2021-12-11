@@ -12,7 +12,7 @@
 
 (import ./watch-cache :as wc)
 
-(def- mappings 
+(def- mappings
   "All static assets will be put into the output site (besides those in static/)."
   @{})
 
@@ -28,7 +28,7 @@
                  (each f (os/dir src)
                    (let [subsrc (string src "/" f)
                          subdest (string dest "/" f)]
-                       (cp-rf subsrc subdest))))))
+                     (cp-rf subsrc subdest))))))
 
 (defn add-file
   "Register a file to be copied into the site/ directory."
