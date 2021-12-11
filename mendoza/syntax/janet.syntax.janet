@@ -18,7 +18,9 @@
                 'unquote true
                 'quasiquote true
                 'quote true
-                'if true})
+                'if true
+                'break true
+                'upscope true})
 
 (defn- check-number [text] (and (scan-number text) text))
 
