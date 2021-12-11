@@ -12,8 +12,8 @@ languages are both Janet DSLs, or dialects, so can used ordinary Janet functions
 
 With inspiration from @link[https://docs.racket-lang.org/scribble/]{Scribble},
 we are using a macro system which expands the entire document into a Janet data structure, and
-then calls @code[eval] on that data structure to genereate a document. That document is then
-rendered into HTML, with each node having an optional bar template. This design is flexible enough
+then calls @code[eval] on that data structure to generate a document. That document is then
+rendered into HTML, with each node having an optional template. This design is flexible enough
 to let us dictate form from the markup (via janet functions and macros) and from the templates
 (templates can wrap nodes in HTML, and even call other janet functions to render markup in
 arbitrary ways. HTML, however, remains the sole intended output format.
@@ -25,9 +25,11 @@ arbitrary ways. HTML, however, remains the sole intended output format.
 ## Simple Example
 
 It should be easy to get a basic site up and running in Mendoza, as there are no configuration
-files required and templates are provided out of the box.
+files required and templates are provided out of the box (in the example to follow, we make
+use of the "blueblog" template).
 
-Below is an equivalent of "Hello, World!" for mendoza. Put it in a file @code`content/index.mdz`
+Below is an equivalent of "Hello, World!" for mendoza. From within your project directory,
+put the content into a file named @code`content/index.mdz`
 and run @code`mdz` from the project directory to generate your site.
 
 @codeblock```
@@ -43,5 +45,6 @@ Welcome to my site!
 ## Serving the Site
 
 Once your site has been generated, the output artifacts will be in the @code`site` directory.
-You can then serve these with your favorite HTTP server, or run @code`mdz serve` to serve
-them on the local machine with circlet.
+You can view them directly by pointing your browser to the @code`site/index.html` file.
+Alternatively, you can serve them using your favorite HTTP server or else run @code`mdz serve`
+to serve them on the local machine using @link[https://github.com/janet-lang/circlet]{circlet}.
