@@ -75,7 +75,7 @@
     :preproc (/ '(* (any :ws) "#" (some (+ (* "\\" 1) (if-not "\n" 1))))
                 ,(syntax/span :line))
     :operator (/ '(set "+-/*%<>~!=^&|?~:;,.()[]{}") ,(syntax/span :operator))
-    :root (+  (* :line-start :preproc)
+    :root (+ (* :line-start :preproc)
              '(some :wsline)
              '"\n"
              (/ (+ ,keywords ,storage-class ,type-qualifier ,function-spec)

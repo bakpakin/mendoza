@@ -52,19 +52,20 @@ your content markup will be exposed in the template as the @code`content` bindin
 Use of double curly braces in a template substitutes a node of the document graph in the final output.
 @code`node` must be a Janet expression that will be rendered and spliced into the output file. @code`node`
 will usually be either a string or a nested table, representing a DOM node that will be rendered by @code`mendoza/render`.
-You can also include other templates with the @code`:template` key in the node.
+You can also include other templates with the @code`{:template (require
+"template.html")}` in the node.
 
 @codeblock[html]```
 <!doctype html>
 <html>
   <head>
-    {{ {:template "mytemplate/head.html"} }}
+    {{ {:template (require "mytemplate/head.html")} }}
   </head>
   <body>
     {{ content }}
   </body>
   <footer>
-    {{ {:template "mytemplate/footer.html} }}
+    {{ {:template (require "mytemplate/footer.html")} }}
   </footer>
 </html>
 ```
@@ -107,7 +108,7 @@ be included in the output html.
 <html>
   <body>
       <pre>
-        {{ (janet/encode (range 100)) }}
+        {{ (json/encode (range 100)) }}
       </pre>
   </body>
 </html>
@@ -141,4 +142,5 @@ Mendoza comes with a few built in templates. They should work well on their
 own or serve as good starting points for your own templates.
 
 @ul{@li{blueblog/main.html}
-    @li{simple/main.html}}
+    @li{simple/main.html}
+    @li{mzdoc/main.html}}

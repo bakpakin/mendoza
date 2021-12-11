@@ -70,14 +70,25 @@
   (unless (empty? content)
     {:tag "p" :content (array/slice content)}))
 
+(def id-tbl @{})
+
 (defn- caph [n & content]
   {:tag (string "h" (length n)) :content
-   (array/slice content)})
+   (array/slice content)
+   "id" (when-let [cand (first content)]
+          (when (string? cand)
+            (let [norm-name (string/replace-all " " "-" (string/trim cand))]
+              (if-let [cnt (get id-tbl norm-name)]
+                (do
+                  (put id-tbl norm-name (inc cnt))
+                  (string norm-name "-" cnt))
+                (do
+                  (put id-tbl norm-name 0)
+                  norm-name)))))})
 
 (def- markup-grammar
   "Grammar for markdown -> document AST parser."
-  ~{
-    # basic character classes
+  ~{# basic character classes
     :wsnl (set " \t\r\v\f\n")
     :ws (set " \t\r\v\f")
 
@@ -140,15 +151,15 @@
   (unless matches (error "bad markdown"))
   (def front-matter (matches 0))
   (defn do-contents []
-      (loop [ast :in (tuple/slice front-matter 0 -2)]
-        (eval ast))
-      (def matter
-        (merge (eval (last front-matter))
-               {:content (seq [ast :in (tuple/slice matches 1)]
-                              (eval ast))}))
-      (def template (matter :template))
-      (when (bytes? template))
-        (put matter :template (require (string template))))
+    (loop [ast :in (tuple/slice front-matter 0 -2)]
+      (eval ast))
+    (def matter
+      (merge (eval (last front-matter))
+             {:content (seq [ast :in (tuple/slice matches 1)]
+                         (eval ast))}))
+    (def template (matter :template))
+    (when (bytes? template)
+      (put matter :template (require (string template)))))
   (def f (fiber/new do-contents :))
   (fiber/setenv f env)
   (resume f))
