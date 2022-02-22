@@ -185,22 +185,19 @@
     # watch runs on linux and mac at least
     # detection is not a solution for windows
     # fswatch technically can run on windows however
-    (def proc (file/popen (string "which " command)))
-    (if (not proc) false
-      (let [result (:read proc :line)]
-        (file/close proc)
-        (and result (not (string/has-suffix? "not found\n" result))))))
+    (def proc (os/spawn (["which" command])))
+    (= (get proc :return-code) 0))
   # Choose command
   (def cmd
     (cond
       (command-possible "inotifywait") (string "inotifywait -m -r " watched-dirs "-e modify")
       (command-possible "fswatch") (string "fswatch -r --one-per-batch " watched-dirs)
       (error "inotifywait, fswatch not available, cannot perform watch.")))
-  (def proc (file/popen cmd :r))
-  (if (not proc) (error (string "could not run " (describe cmd))))
+  (def proc (os/spawn [cmd] :p {:out :pipe}))
+  (if (not (= (get proc :return-code) 0)) (error (string "could not run " (describe cmd))))
   (while true
     (print "Waiting...")
-    (def x (:read proc :line))
+    (def x (:read (proc :out) :line))
     (if (or (not x) (empty? x)) (break))
     (print "Event: " x)
     (rebuild))
