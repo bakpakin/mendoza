@@ -194,7 +194,7 @@
       (command-possible "fswatch") ["fswatch" "-r" "--one-per-batch" ;watched-dirs]
       (error "inotifywait, fswatch not available, cannot perform watch.")))
   (def proc (os/spawn cmd :p {:out :pipe}))
-  (if (not (= (:wait proc) 0)) (error (string "could not run " (describe cmd))))
+  (if (not (zero? (:wait proc))) (error (string "could not run " (describe cmd))))
   (while true
     (print "Waiting...")
     (def x (:read (proc :out) :line))
