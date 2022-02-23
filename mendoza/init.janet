@@ -166,10 +166,10 @@
   []
 
   # Check which directories exist
-  (def watched-dirs @"")
+  (def watched-dirs @[])
   (each path ["static" "templates" "syntax" "mendoza/syntax" "content" "doc"]
     (if (os/stat path :mode)
-      (buffer/push-string watched-dirs path " ")))
+      (array/push watched-dirs path)))
 
   (defn rebuild []
     (def f (fiber/new build :e))
@@ -185,16 +185,16 @@
     # watch runs on linux and mac at least
     # detection is not a solution for windows
     # fswatch technically can run on windows however
-    (def proc (os/spawn (["which" command])))
-    (= (get proc :return-code) 0))
+    (def proc (os/spawn ["which" command] :p {:out :pipe}))
+    (= (:wait proc) 0))
   # Choose command
   (def cmd
     (cond
-      (command-possible "inotifywait") (string "inotifywait -m -r " watched-dirs "-e modify")
-      (command-possible "fswatch") (string "fswatch -r --one-per-batch " watched-dirs)
+      (command-possible "inotifywait") ["inotifywait" "-m" "-r" ;watched-dirs "-e" "modify"]
+      (command-possible "fswatch") ["fswatch" "-r" "--one-per-batch" ;watched-dirs]
       (error "inotifywait, fswatch not available, cannot perform watch.")))
-  (def proc (os/spawn [cmd] :p {:out :pipe}))
-  (if (not (= (get proc :return-code) 0)) (error (string "could not run " (describe cmd))))
+  (def proc (os/spawn cmd :p {:out :pipe}))
+  (if (not (= (:wait proc) 0)) (error (string "could not run " (describe cmd))))
   (while true
     (print "Waiting...")
     (def x (:read (proc :out) :line))
