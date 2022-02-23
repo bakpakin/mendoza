@@ -186,7 +186,7 @@
     # detection is not a solution for windows
     # fswatch technically can run on windows however
     (def proc (os/spawn ["which" command] :p {:out :pipe}))
-    (= (:wait proc) 0))
+    (zero? (:wait proc))
   # Choose command
   (def cmd
     (cond
