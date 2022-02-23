@@ -186,7 +186,7 @@
     # detection is not a solution for windows
     # fswatch technically can run on windows however
     (def proc (os/spawn (["which" command])))
-    (= (get proc :return-code) 0))
+    (= (get proc :return-code) zero?))
   # Choose command
   (def cmd
     (cond
@@ -194,11 +194,10 @@
       (command-possible "fswatch") (string "fswatch -r --one-per-batch " watched-dirs)
       (error "inotifywait, fswatch not available, cannot perform watch.")))
   (def proc (os/spawn [cmd] :p {:out :pipe}))
-  (if (not (= (get proc :return-code) 0)) (error (string "could not run " (describe cmd))))
+  (if (not (= (get proc :return-code) zero?)) (error (string "could not run " (describe cmd))))
   (while true
     (print "Waiting...")
     (def x (:read (proc :out) :line))
     (if (or (not x) (empty? x)) (break))
     (print "Event: " x)
-    (rebuild))
-  (file/close proc))
+    (rebuild)))
