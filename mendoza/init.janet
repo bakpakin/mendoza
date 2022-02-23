@@ -200,5 +200,4 @@
     (def x (:read (proc :out) :line))
     (if (or (not x) (empty? x)) (break))
     (print "Event: " x)
-    (rebuild))
-  (file/close proc))
+    (rebuild)))
