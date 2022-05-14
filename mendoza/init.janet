@@ -166,42 +166,52 @@
   []
 
   # Check which directories exist
-  (def watched-dirs @"")
-  (each path ["static" "templates" "syntax" "mendoza/syntax" "content" "doc"]
+  (def watched-dirs @[])
+  (each path ["static" "templates" "syntax" "content"]
     (if (os/stat path :mode)
-      (buffer/push-string watched-dirs path " ")))
+      (array/push watched-dirs path)))
 
   (defn rebuild []
     (def f (fiber/new build :e))
     (def res (resume f))
     (case (fiber/status f)
       :error (do
-               (:write stdout "build ")
+               (:write stdout "build")
                (:flush stdout)
                (debug/stacktrace f res))))
   (rebuild)
-  # Detect if inotify is present
-  (defn command-possible [command]
-    # watch runs on linux and mac at least
-    # detection is not a solution for windows
-    # fswatch technically can run on windows however
-    (def proc (file/popen (string "which " command)))
-    (if (not proc) false
-      (let [result (:read proc :line)]
-        (file/close proc)
-        (and result (not (string/has-suffix? "not found\n" result))))))
-  # Choose command
-  (def cmd
-    (cond
-      (command-possible "inotifywait") (string "inotifywait -m -r " watched-dirs "-e modify")
-      (command-possible "fswatch") (string "fswatch -r --one-per-batch " watched-dirs)
-      (error "inotifywait, fswatch not available, cannot perform watch.")))
-  (def proc (file/popen cmd :r))
-  (if (not proc) (error (string "could not run " (describe cmd))))
-  (while true
+
+  (when (empty? watched-dirs)
+    (break))
+
+  # Get a file watching process
+  (var pipe nil)
+  (var proc nil)
+  (try
+    (do
+      (def args ["inotifywait" "-m" "-r" ;watched-dirs "-e" "modify"])
+      (set proc (os/spawn args :px {:out :pipe}))
+      (print "using inotifywait")
+      (set pipe :out))
+    ([_]
+     (def args ["fswatch" "-r" "-o" "-a"
+                "-e" "4913" # vim will create a test file called "4913" for terrible reasons. Like wtf.
+                "--event=Created" "--event=Updated" "--event=AttributeModified" "--event=Removed"
+                "--event=Renamed"
+                ;watched-dirs])
+     (set proc (os/spawn args :px {:out :pipe}))
+     (print "using fswatch")
+     (set pipe :out)))
+
+  (def buf @"")
+  (var build-iter 0)
+  (forever
     (print "Waiting...")
-    (def x (:read proc :line))
-    (if (or (not x) (empty? x)) (break))
-    (print "Event: " x)
-    (rebuild))
-  (file/close proc))
+    (buffer/clear buf)
+    (ev/read (proc pipe) 4096 buf)
+    (when (empty? buf)
+      (:wait proc)
+      (break))
+    (print "buffer: " buf)
+    (rebuild)
+    (print "Rebuild " (++ build-iter))))
