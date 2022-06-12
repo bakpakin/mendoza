@@ -43,7 +43,7 @@ The simplest template is just a plain HTML file.
 ## Code in Templates
 
 The main benefit of templates is the ability to embed both Janet code and other
-templates inside ypur pages. The template syntax has three ways to include Janet
+templates inside your pages. The template syntax has three ways to include Janet
 expressions in the generated html (or any other kind of text file!). The body of
 your content markup will be exposed in the template as the @code`content` binding.
 
