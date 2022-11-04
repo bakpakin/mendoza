@@ -139,6 +139,12 @@
   "A peg that converts markdown to html."
   (peg/compile markup-grammar))
 
+(defn- parse-template-ext [filename]
+  (let [ext (last (string/split "." filename))]
+    (match ext
+      "tmpl" "html"
+      ext)))
+
 (defn markup
   "Parse mendoza markup and evaluate it returning a document tree."
   [source]
@@ -158,6 +164,7 @@
              {:content (seq [ast :in (tuple/slice matches 1)]
                          (eval ast))}))
     (def template (matter :template))
+    (put matter :template-ext (parse-template-ext template))
     (when (bytes? template)
       (put matter :template (require (string template)))))
   (def f (fiber/new do-contents :))
