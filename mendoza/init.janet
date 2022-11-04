@@ -49,7 +49,9 @@
   [lead page]
   (def front-trim (length lead))
   (def o (page :url))
-  (or o (string (string/slice (page :input) front-trim -5) ".html")))
+  (or o (string (string/slice (page :input) front-trim -5)
+                "."
+                (page :template-ext))))
 
 (defn- rimraf
   "Remove a directory and all sub directories."
