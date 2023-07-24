@@ -57,7 +57,7 @@
   be absolute from the site root, like /index.html."
   [url]
   (def b-parts (string/split "/" (dyn :url)))
-  (array/remove b-parts -2)
+  (array/pop b-parts)
   (def a-parts (string/split "/" url))
   (while (and (not= 0 (length a-parts))
               (not= 0 (length b-parts))
