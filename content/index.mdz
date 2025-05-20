@@ -7,7 +7,7 @@
 ## Overview
 
 Mendoza is a static site generator. It is a thin wrapper around the Janet programming language
-for templaing HTML, writing Markup, and developing a static website. The template and markup
+for templating HTML, writing Markup, and developing a static website. The template and markup
 languages are both Janet DSLs, or dialects, so can used ordinary Janet functions, macros, and modules.
 
 With inspiration from @link[https://docs.racket-lang.org/scribble/]{Scribble},
