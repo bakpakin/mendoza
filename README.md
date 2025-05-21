@@ -28,9 +28,10 @@ authoring documentation for the Janet website.
 
 ## Usage
 
-First, make sure you have Janet installed. See
-[the Janet docs](https://janet-lang.org/introduction.html) for
-more information on this. Use the latest version from git, please.
+First, make sure you have Janet installed. See [Janet's introduction page] for more
+information. Whenever possible, please install the latest version from git.
+
+[Janet's introduction page]: https://janet-lang.org/docs/index.html
 
 ### Global Installation
 
