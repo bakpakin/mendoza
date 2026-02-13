@@ -82,7 +82,7 @@
     :error (error (parser/error p)))
 
   # Make ast from forms
-  (def ast ~(fn _mendoza-template [,bufsym]
+  (def ast ~(fn :mendoza-template [,bufsym]
               # Add important bindings to make templating easier.
               # Also helps catching template errors.
               (def state dyn) # for backwards compatibility
