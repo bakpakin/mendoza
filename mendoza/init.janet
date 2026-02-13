@@ -137,6 +137,7 @@
   # Render a page
   (defn render-page
     [page url]
+    (print "Rendering page " url)
     (def out
       (with-dyns [:url url
                   :pages pages

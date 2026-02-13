@@ -1,0 +1,8 @@
+@{:author "Calvin Rose"
+  :dependencies @["spork"]
+  :jpm-dependencies @["http://github.com/janet-lang/circlet.git"]
+  :license "MIT"
+  :name "mendoza"
+  :repo "git+https://github.com/bakpakin/mendoza.git"
+  :url "https://github.com/bakpakin/mendoza"
+  :version "0.0.1"}
