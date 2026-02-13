@@ -166,11 +166,11 @@
   "Watch for files changing, and re-run mendoza when source files
   change. Only works when content files and templates change, and
   only on linux for now."
-  []
+  [& dir]
 
   # Check which directories exist
   (def watched-dirs @[])
-  (each path ["static" "templates" "syntax" "content"]
+  (each path ["static" "templates" "syntax" "content" ;dir]
     (if (os/stat path :mode)
       (array/push watched-dirs path)))
 
@@ -197,14 +197,14 @@
       (print "using inotifywait")
       (set pipe :out))
     ([_]
-     (def args ["fswatch" "-r" "-o" "-a"
-                "-e" "4913" # vim will create a test file called "4913" for terrible reasons. Like wtf.
-                "--event=Created" "--event=Updated" "--event=AttributeModified" "--event=Removed"
-                "--event=Renamed"
-                ;watched-dirs])
-     (set proc (os/spawn args :px {:out :pipe}))
-     (print "using fswatch")
-     (set pipe :out)))
+      (def args ["fswatch" "-r" "-o" "-a"
+                 "-e" "4913" # vim will create a test file called "4913" for terrible reasons. Like wtf.
+                 "--event=Created" "--event=Updated" "--event=AttributeModified" "--event=Removed"
+                 "--event=Renamed"
+                 ;watched-dirs])
+      (set proc (os/spawn args :px {:out :pipe}))
+      (print "using fswatch")
+      (set pipe :out)))
 
   (def buf @"")
   (var build-iter 0)
