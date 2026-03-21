@@ -1,6 +1,7 @@
 (declare-project
   :name "mendoza"
   :author "Calvin Rose"
+  :description "A static site generator extensible with and written in Janet."
   :license "MIT"
   :version "0.0.1"
   :url "https://github.com/bakpakin/mendoza"
