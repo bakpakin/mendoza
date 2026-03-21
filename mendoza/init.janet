@@ -1,9 +1,9 @@
 ###
 ### mendoza/init.janet
-### Copyright © Calvin Rose 2019
+### Copyright © Calvin Rose 2026
 ###
 
-(def version "0.0.1")
+(def version "0.0.2")
 
 (import ./markup :as markup)
 (import ./render :as render)
@@ -13,8 +13,8 @@
 (import ./static :as static)
 (import ./watch-cache :as watch-cache)
 
-# For serving local files
-(import circlet)
+# Debug server
+(import spork/http)
 
 #
 # Add loaders
@@ -90,14 +90,26 @@
   (default port 8000)
   (default host "127.0.0.1")
   (default site "site")
-  (let [port ((if (string? port) scan-number identity) port)]
-    (circlet/server
-      (->
-        {:default {:kind :static
-                   :root site}}
-        circlet/router
-        circlet/logger)
-      port host)))
+  (def routes @{})
+  (defn walker
+    [dir dirpath]
+    (each d (os/dir dir)
+      (def subdir (string dir "/" d))
+      (def subdirpath (string dirpath "/" d))
+      (if (= :directory (os/stat subdir :mode))
+        (walker subdir subdirpath)
+        (put routes subdirpath subdir))))
+  (walker site "")
+  (defn handler
+    "Serve static files"
+    [req]
+    (def rpath (get req :route))
+    (def fixed-path (if (string/has-suffix? rpath "/") (string rpath "index.html") rpath))
+    (def valid-path (get routes fixed-path))
+    (unless valid-path (break {:body "Not Found" :status 404}))
+    {:body (slurp valid-path) :status 200})
+  (print "debug HTTP server for \"" site "\" on " host " port " port "...")
+  (http/server (http/logger handler) host (string port)))
 
 # re-export render
 (setdyn 'render (dyn 'render/render))

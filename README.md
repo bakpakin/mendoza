@@ -51,3 +51,8 @@ files statically. In this case, use the `./mdz` script to run mendoza.
 ## License
 
 Mendoza is licensed under the MIT License.
+
+Prior to version 0.0.2, mendoza depended on circlet for its debugging HTTP server.
+The "circlet" dependency, however, is licensed under GPLv2, and is dynamically imported by `mdz serve`.
+
+Starting with 0.0.2, mendoza uses spork for it's debug server.
