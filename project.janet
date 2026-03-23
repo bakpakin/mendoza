@@ -6,7 +6,7 @@
   :version "0.0.1"
   :url "https://github.com/bakpakin/mendoza"
   :repo "git+https://github.com/bakpakin/mendoza.git"
-  :dependencies ["http://github.com/janet-lang/spork.git"])
+  :dependencies [])
 
 (declare-binscript
   :main "mdz"

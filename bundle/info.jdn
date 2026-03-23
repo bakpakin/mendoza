@@ -1,6 +1,6 @@
 @{:author "Calvin Rose"
-  :dependencies @["spork"]
-  :jpm-dependencies @["http://github.com/janet-lang/spork.git"]
+  :dependencies @[]
+  :jpm-dependencies @[]
   :license "MIT"
   :name "mendoza"
   :repo "git+https://github.com/bakpakin/mendoza.git"

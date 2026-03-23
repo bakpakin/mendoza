@@ -14,7 +14,9 @@
 (import ./watch-cache :as watch-cache)
 
 # Debug server
-(import spork/http)
+(try
+  (import spork/http)
+  ([_error]))
 
 #
 # Add loaders
@@ -84,32 +86,36 @@
   (print "Unloading cached modules...")
   (watch-cache/clean))
 
-(defn serve
-  "Serve the site locally."
-  [&opt port host site]
-  (default port 8000)
-  (default host "127.0.0.1")
-  (default site "site")
-  (def routes @{})
-  (defn walker
-    [dir dirpath]
-    (each d (os/dir dir)
-      (def subdir (string dir "/" d))
-      (def subdirpath (string dirpath "/" d))
-      (if (= :directory (os/stat subdir :mode))
-        (walker subdir subdirpath)
-        (put routes subdirpath subdir))))
-  (walker site "")
-  (defn handler
-    "Serve static files"
-    [req]
-    (def rpath (get req :route))
-    (def fixed-path (if (string/has-suffix? rpath "/") (string rpath "index.html") rpath))
-    (def valid-path (get routes fixed-path))
-    (unless valid-path (break {:body "Not Found" :status 404}))
-    {:body (slurp valid-path) :status 200})
-  (print "debug HTTP server for \"" site "\" on " host " port " port "...")
-  (http/server (http/logger handler) host (string port)))
+(compif (dyn 'http/server)
+  (defn serve
+    "Serve the site locally."
+    [&opt port host site]
+    (default port 8000)
+    (default host "127.0.0.1")
+    (default site "site")
+    (def routes @{})
+    (defn walker
+      [dir dirpath]
+      (each d (os/dir dir)
+        (def subdir (string dir "/" d))
+        (def subdirpath (string dirpath "/" d))
+        (if (= :directory (os/stat subdir :mode))
+          (walker subdir subdirpath)
+          (put routes subdirpath subdir))))
+    (walker site "")
+    (defn handler
+      "Serve static files"
+      [req]
+      (def rpath (get req :route))
+      (def fixed-path (if (string/has-suffix? rpath "/") (string rpath "index.html") rpath))
+      (def valid-path (get routes fixed-path))
+      (unless valid-path (break {:body "Not Found" :status 404}))
+      {:body (slurp valid-path) :status 200})
+    (print "debug HTTP server for \"" site "\" on " host " port " port "...")
+    (http/server (http/logger handler) host (string port)))
+  (defn serve
+    [&]
+    (error "debug http server not supported (install spork!)")))
 
 # re-export render
 (setdyn 'render (dyn 'render/render))
