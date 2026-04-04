@@ -128,12 +128,13 @@
 (def- docstring-peg-source
   "Convert a docstring into a dom node."
   ~{:ws (set " \t\r\n\0\f")
+    :nn (* "\n" (any (set " \t\r\f")) "\n")
     :funcdef (* (any :ws)
                 (/ '(* "(" (any (if-not ")" 1)) ")")
                    ,|(codeblock "janet" $))
-                "\n\n")
-    :br (* "\n\n" (constant {:tag "br" :no-close true}))
-    :li (* "\t" (/ '(any (if-not "\n" 1)) ,|{:tag "li" :content $}))
+                :nn)
+    :br (* :nn (constant {:tag "br" :no-close true}))
+    :li (* (+ (* (+ "-" "*") :s+) "\t") (/ '(any (if-not "\n" 1)) ,|{:tag "li" :content $}))
     :ul (* (some :li) (+ "\n" -1))
     :sent '(some (if-not "\n" 1))
     :main (* (? :funcdef) (/ (group (any (+ :ul :sent :br "\n"))) ,|{:tag "p" :content $}))})
